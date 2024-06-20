@@ -15,6 +15,7 @@ connection = None
 session = None
 
 # probably we want to have a database and a schema per scenario we want to demo
+
 url = URL.create(
     drivername="postgresql",
     username="",
@@ -41,6 +42,7 @@ class User(Base):
     role_id = Column(String, nullable=False)
     wallet_address = Column(LargeBinary(20), nullable=False)
     name = Column(String(100), nullable=False)
+    password = Column(String(100), nullable=False)
     address = Column(String(200), nullable=False)
     age = Column(Integer, CheckConstraint('age >= 18 AND age <= 99'), nullable=False)
     gender = Column(String(100), nullable=False)

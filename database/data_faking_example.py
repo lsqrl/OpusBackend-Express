@@ -50,6 +50,7 @@ def fake_user_table(session, num_rows):
         user_list.append(User(role_id=fake.random_element(elements=('Provider', 'Taker', 'Both')),
             wallet_address=b'\x00' + fake.binary(length=20),  # Example 20-byte address
             name=fake.name(),
+            password=fake.password(),
             address=fake.address(),
             age=fake.random_int(min=18, max=99),
             gender=fake.random_element(elements=('Male', 'Female', 'Non-binary', 'Other')),
