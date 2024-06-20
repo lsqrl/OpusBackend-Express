@@ -1,15 +1,16 @@
-# Here we are going to have a set of routines that fakes the data in the database such that we can showcase the features
+# Here we are going to have a set of routines that fakes the data in the database such that we can 
+# showcase the features
 # Prior to the cumbersome actual data selection
 from faker.providers import DynamicProvider
 from faker import Faker
 import pandas as pd
 import numpy as np
 from itertools import islice
-from database_creation import *
+from initialize_database import User
 
 fake = Faker()
 
-def fake_experimenter_table(num_rows):
+def fake_user_table(session, num_rows):
 
     def get_entries():
         import requests
@@ -43,20 +44,19 @@ def fake_experimenter_table(num_rows):
          elements = university_list,
     )
     fake.add_provider(university_provider)
-
-    name_list = [] 
-    surname_list = []
-    email_list = []
-    insitution_list = [] 
-    num = 100
-    ex_list = []
+    user_list = []
     for i in range(num_rows):
         name = fake.name().split(' ')
         institution = fake.university_name_generator()
-        ex_list.append(Experimenter(name=name[0], surname=name[1], 
-                                    email='.'.join(name) + f"@{fake.domain_name()}",
-                                    institution=institution))
-    session.add_all(ex_list)
+        user_list.append(User(role_id=fake.random_element(elements=('Provider', 'Taker', 'Both')),
+            wallet_address=b'\x00' + fake.binary(length=20),  # Example 20-byte address
+            name=fake.name(),
+            address=fake.address(),
+            age=fake.random_int(min=18, max=99),
+            gender=fake.random_element(elements=('Male', 'Female', 'Non-binary', 'Other')),
+            email=fake.email(),
+            kyc_aml_id=fake.binary(length=30)))  # Example binary content for a KYC/AML file
+    session.add_all(user_list)
     session.commit()
  
 

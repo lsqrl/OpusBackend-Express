@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, CheckConstraint, Integer, LargeBinary, Boolean, Float, String, DateTime, \
-Text, ForeignKey, UniqueConstraint, CheckConstraint, Computed, MetaData
+Text, ForeignKey, UniqueConstraint, CheckConstraint, Computed, MetaData, func
 from sqlalchemy.engine import URL
 from sqlalchemy import select
 from sqlalchemy.orm import declarative_base, relationship, backref, sessionmaker
@@ -14,6 +14,7 @@ Base = declarative_base()
 connection = None
 session = None
 
+# probably we want to have a database and a schema per scenario we want to demo
 url = URL.create(
     drivername="postgresql",
     username="",
@@ -22,6 +23,7 @@ url = URL.create(
     port=5432,
     database="postgres"
 )
+
 
 def init_database():
     engine = create_engine(url)
@@ -50,27 +52,16 @@ class User(Base):
                 f"wallet_address='{self.wallet_address.hex()}', age={self.age}, gender='{self.gender}')>")
 
 
-
-
-def demo_adding_user():
-    # Example Usage: Add and Commit Data
-    new_user = User(
-        role_id='admin',
-        wallet_address=b'\x00' * 20,  # Example 20-byte address
-        name='John Doe',
-        address='1234 Example Street, Example City, EX 12345',
-        age=30,
-        gender='Male',
-        email='johndoe@example.com',
-        kyc_aml_id=b'%PDF-1.4...'  # Example binary content for a PDF file
-    )
-    session.add(new_user)
+if __name__ == "__main__":
+    NUMBER_OF_USERS = 100
+    init_database()
+    # clear the table if it exists
+    session.query(User).delete()
     session.commit()
-
-    # Example Usage: Query Data
+    from data_faking_example import fake_user_table
+    fake_user_table(session=session, num_rows=NUMBER_OF_USERS)
+    # Check if the users were written
     for user in session.query(User).order_by(User.id):
         print(user)
-
-if __name__ == "__main__":
-    init_database()
-    demo_adding_user()
+    user_count = session.query(func.count(User.id)).scalar()
+    print(f"Number of entries in the 'users' table: {user_count}")
