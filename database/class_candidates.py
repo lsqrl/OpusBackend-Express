@@ -59,8 +59,8 @@ class Option(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
     abbreviation = Column(String(100), nullable=False)
-    maturity = Column(DateTime, nullable=False)
-    strike = Column(Float, nullable=False)
+    maturity = Column(DateTime, nullable=False)    # 1M, 2M, 3M, 6M, 1Y, Custom
+    strike = Column(Float, nullable=False)         # ATM, Spot +-5%, Custom
     direction = Column(String(4), nullable=False)  # "buy" or "sell"
     type = Column(String(4), nullable=False)       # "call" or "put"
     premium = Column(Float, nullable=False)
@@ -81,4 +81,41 @@ class TradeLog(Base):
 
     def __repr__(self):
         return (f"<TradeLog(id={self.id}, timestamp='{self.timestamp}', "
-                f"option_id='{self.option_id}', user_id='{self.user_id}')>")                
+                f"option_id='{self.option_id}', user_id='{self.user_id}')>")    
+
+
+def fill_in_currency_table():
+    # Create and add fake data to the session
+    CURRENCY_NAMES = ['Dollar', 'Euro', 'Mexican Peso', 'Bitcoin', 'Ethereum']
+    CURRENCY_ABBREVIATIONS = ['USD', 'EUR', 'MXN', 'BTC', 'ETH']
+    session.add([(n, a) for (n, a) in zip(CURRENCY_NAMES, CURRENCY_ABBREVIATIONS)])  
+
+def fill_in_liquidity_pool_table():
+    LIQUIDITY_POOL_NUMBER = 10
+    def create_fake_liquidity_pool():
+        return LiquidityPool(
+            currency_id=fake.currency_code(), # TODO
+            balance=round(fake.random_number(digits=6) + fake.random.random(), 2)  # Generating a large random balance
+        )
+
+    # Create and add fake data to the session
+    for _ in range(10):
+        fake_liquidity_pool = create_fake_liquidity_pool()
+        session.add(fake_liquidity_pool)
+
+
+
+def fill_in_liquidity_pool_trans_table():
+    pass
+
+def fill_in_margin_account_table():
+    pass
+
+def fill_in_margin_account_trans_table():
+    pass
+
+def fill_in_option_table():
+    pass
+
+def fill_in_trade_log_table():
+    pass
