@@ -62,14 +62,14 @@ class Option(Base):
     maturity = Column(DateTime, nullable=False)    # 1M, 2M, 3M, 6M, 1Y, Custom
     strike = Column(Float, nullable=False)         # ATM, Spot +-5%, Custom
     direction = Column(String(4), nullable=False)  # "buy" or "sell"
-    type = Column(String(4), nullable=False)       # "call" or "put"
+    strategy = Column(String(4), nullable=False)       # "call" or "put"
     premium = Column(Float, nullable=False)
     margin = Column(Float, nullable=False)
     notional = Column(Float, nullable=False)
 
     def __repr__(self):
         return (f"<Option(id={self.id}, name='{self.name}', abbreviation='{self.abbreviation}', maturity='{self.maturity}', "
-                f"strike={self.strike}, direction='{self.direction}', type='{self.type}', premium={self.premium}, "
+                f"strike={self.strike}, direction='{self.direction}', strategy='{self.strategy}', premium={self.premium}, "
                 f"margin={self.margin}, notional={self.notional})>")
 
 class TradeLog(Base):
