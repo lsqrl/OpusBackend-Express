@@ -6,7 +6,7 @@ from faker import Faker
 import pandas as pd
 import numpy as np
 from itertools import islice
-from initialize_database import User
+from initialize_database import User, Currency, LiquidityPool
 
 fake = Faker()
 
@@ -59,6 +59,26 @@ def fake_user_table(session, num_rows):
     session.add_all(user_list)
     session.commit()
  
+def fake_currency_table(session):
+    # Create and add fake data to the session
+    CURRENCY_NAMES = ['Euro', 'Mexican Peso', 'Bitcoin', 'Ethereum']
+    CURRENCY_ABBREVIATIONS = ['EUR', 'MXN', 'BTC', 'ETH']
+    for n, a in zip(CURRENCY_NAMES, CURRENCY_ABBREVIATIONS):
+        session.add(Currency(name=n, abbreviation=a))  
+        session.commit()
+
+def fake_liquidity_pool_table(session, num_pools):
+    def create_fake_liquidity_pool():
+        return LiquidityPool(
+            currency_id=fake.currency_code(), # TODO
+            balance=round(fake.random_number(digits=6) + fake.random.random(), 2)  # Generating a large random balance
+        )
+
+    # Create and add fake data to the session
+    for _ in range(num_pools):
+        fake_liquidity_pool = create_fake_liquidity_pool()
+        session.add(fake_liquidity_pool)
+        session.commit()
 
 def transaction_example():
     tranDate = [] 
