@@ -6,7 +6,7 @@ from faker import Faker
 import pandas as pd
 import numpy as np
 from itertools import islice
-from initialize_database import User, Currency, LiquidityPool
+from dataTypes import User, Currency, LiquidityPool
 
 fake = Faker()
 
