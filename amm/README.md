@@ -1,6 +1,9 @@
 # Automated Market Maker
 Here we will collect all the ingredients for the automated market maker.
 
+## Uniswap as the inspiration
+Contains a market making mechanism from which we can get inspired
+
 ## Sharpes ratio
 
 The formula that balances risk with gain in finance is commonly referred to as the **Sharpe Ratio**. The Sharpe Ratio is a measure used to evaluate the risk-adjusted return of an investment. It is calculated by subtracting the risk-free rate of return from the expected return of the investment and then dividing the result by the standard deviation of the investment’s returns. The formula is as follows:
