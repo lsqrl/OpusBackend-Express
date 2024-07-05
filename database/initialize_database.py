@@ -6,6 +6,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import os
 
+from dataTypes import User
+
 #engine = create_engine('sqlite:///example.db', echo=True)
 Base = declarative_base()
 connection = None
@@ -17,8 +19,8 @@ load_dotenv()
 
 url = URL.create(
     drivername="postgresql",
-    username=os.getenv("USERNAME"),
-    password=os.getenv("PASSWORD"),
+    username=os.getenv("POSTGRES_USERNAME"),
+    password=os.getenv("POSTGRES_PASSWORD"),
     host="localhost",
     port=5432,
     database="postgres"
