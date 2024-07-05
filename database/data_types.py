@@ -51,6 +51,8 @@ class User(Base):
 
     child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_user')
     child_ma = relationship('MarginAccount', back_populates='parent_user')
+    child_mat = relationship('MarginAccountTrans', back_populates='parent_user')
+    child_tl = relationship('TradeLog', back_populates='parent_user')
 
     def __repr__(self):
         return (f"<User(name='{self.name}', email='{self.email}', role_id='{self.role_id}', "
@@ -122,6 +124,7 @@ class MarginAccount(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
 
     parent_user = relationship('User', back_populates='child_ma')
+    child_mat = relationship('MarginAccountTrans', back_populates='parent_ma')
 
     def __repr__(self):
         return (f"<MarginAccount(id={self.id}, timestamp_opening='{self.timestamp_opening}', "
@@ -134,9 +137,12 @@ class MarginAccountTrans(Base):
     __tablename__ = 'margin_account_trans'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    user_id = Column(String(100), nullable=False)
-    margin_account_id = Column(String(100), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    margin_account_id = Column(Integer, ForeignKey('margin_account.id'))
     amount = Column(Float, nullable=False)
+
+    parent_user = relationship('User', back_populates='child_mat')
+    parent_ma = relationship('MarginAccount', back_populates='child_mat')
 
     def __repr__(self):
         return (f"<MarginAccountTrans(id={self.id}, timestamp='{self.timestamp}', "
@@ -176,6 +182,8 @@ class Option(Base):
         )
     )
 
+    child_tl = relationship('TradeLog', back_populates='parent_op')
+
     def __repr__(self):
         return (f"<Option(id={self.id}, name='{self.name}', abbreviation='{self.abbreviation}', maturity='{self.maturity}', "
                 f"strike={self.strike}, direction='{self.direction}', strategy='{self.strategy}', premium={self.premium}, "
@@ -188,8 +196,11 @@ class TradeLog(Base):
     __tablename__ = 'trade_log'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    option_id = Column(String(100), nullable=False)
-    user_id = Column(String(100), nullable=False)
+    option_id = Column(ForeignKey('option.id'))
+    user_id = Column(ForeignKey('user.id'))
+
+    parent_op = relationship('Option', back_populates='child_tl')
+    parent_user = relationship('User', back_populates='child_tl')
 
     def __repr__(self):
         return (f"<TradeLog(id={self.id}, timestamp='{self.timestamp}', "
