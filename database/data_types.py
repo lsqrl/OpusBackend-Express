@@ -42,6 +42,10 @@ class User(Base):
         CheckConstraint(
             "age >= 18 AND age <= 99",
             name='age_check'
+        ),
+        CheckConstraint(
+            "gender IN ( 'Male', 'Female', 'Non-binary', 'Other')",
+            name='gender_check'
         )
     )
 
