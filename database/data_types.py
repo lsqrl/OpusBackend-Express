@@ -46,6 +46,7 @@ class User(Base):
     )
 
     child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_user')
+    child_ma = relationship('MarginAccount', back_populates='parent_user')
 
     def __repr__(self):
         return (f"<User(name='{self.name}', email='{self.email}', role_id='{self.role_id}', "
@@ -114,7 +115,9 @@ class MarginAccount(Base):
     __tablename__ = 'margin_account'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp_opening = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    user_id = Column(String(100), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+
+    parent_user = relationship('User', back_populates='child_ma')
 
     def __repr__(self):
         return (f"<MarginAccount(id={self.id}, timestamp_opening='{self.timestamp_opening}', "
@@ -143,8 +146,8 @@ class Option(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
     abbreviation = Column(String(100), nullable=False)
-    maturity = Column(DateTime, nullable=False)
-    strike = Column(Float, nullable=False)
+    maturity = Column(String, nullable=False)
+    strike = Column(String, nullable=False)
     direction = Column(String(4), nullable=False)
     strategy = Column(String(4), nullable=False)
     premium = Column(Float, nullable=False)
@@ -152,7 +155,7 @@ class Option(Base):
     notional = Column(Float, nullable=False)
     __table_args__ = (
         CheckConstraint(
-            "maturity_id IN ('1M', '2M', '3M', '6M', '1Y', 'Custom')",
+            "maturity IN ('1M', '2M', '3M', '6M', '1Y', 'Custom')",
             name='maturity_check'
         ),
         CheckConstraint(

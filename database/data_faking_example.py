@@ -5,6 +5,7 @@ from faker.providers import DynamicProvider
 from faker import Faker
 import pandas as pd
 import numpy as np
+import random
 from itertools import islice
 from data_types import User, Currency, LiquidityPool
 
@@ -69,8 +70,9 @@ def fake_currency_table(session):
 
 def fake_liquidity_pool_table(session, num_pools):
     def create_fake_liquidity_pool():
+        currency_ids = session.query(Currency.id).all()
         return LiquidityPool(
-            currency_id=fake.currency_code(), # TODO
+            currency_id=random.choice(currency_ids)[0], # since it returns a tuple
             balance=round(fake.random_number(digits=6) + fake.random.random(), 2)  # Generating a large random balance
         )
 

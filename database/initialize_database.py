@@ -26,24 +26,24 @@ def init_database():
     engine = create_engine(url)
     global connection
     connection = engine.connect()
-    Base.metadata.create_all(engine)
+    Base.metadata.drop_all(engine)    # drop all
+    Base.metadata.create_all(engine)  # start over
     Session = sessionmaker(bind=engine)
     global session
     session = Session()
 
 if __name__ == "__main__":
-    NUMBER_OF_USERS = 3
-    NUMBER_OF_POOLS = 10
     init_database()
-    # clear the table if it exists
-    session.query(User).delete()
-    session.commit()
+    
+    NUMBER_OF_USERS = 10
+    NUMBER_OF_POOLS = 10
+
     from data_faking_example import *
     fake_user_table(session=session, num_rows=NUMBER_OF_USERS)
     fake_currency_table(session=session)
     fake_liquidity_pool_table(session=session, num_pools=NUMBER_OF_POOLS)
     # Check if the users were written
-    for user in session.query(User).order_by(User.id):
-        print(user)
+    #for user in session.query(User).order_by(User.id):
+    #    print(user)
     user_count = session.query(func.count(User.id)).scalar()
     print(f"Number of entries in the 'users' table: {user_count}")
