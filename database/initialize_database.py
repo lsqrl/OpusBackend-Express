@@ -19,7 +19,7 @@ url = URL.create(
     password=os.getenv("POSTGRES_PASSWORD"),
     host="localhost",
     port=5432,
-    database="uzh"
+    database="postgres"
 )
 
 def init_database():
