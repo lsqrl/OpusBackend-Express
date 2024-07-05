@@ -4,17 +4,13 @@ from sqlalchemy import  func
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from data_types import *
 import os
 
-from dataTypes import User
-
-#engine = create_engine('sqlite:///example.db', echo=True)
-Base = declarative_base()
 connection = None
 session = None
 
 load_dotenv()
-
 # probably we want to have a database and a schema per scenario we want to demo
 
 url = URL.create(
@@ -23,7 +19,7 @@ url = URL.create(
     password=os.getenv("POSTGRES_PASSWORD"),
     host="localhost",
     port=5432,
-    database="postgres"
+    database="uzh"
 )
 
 def init_database():
@@ -36,7 +32,7 @@ def init_database():
     session = Session()
 
 if __name__ == "__main__":
-    NUMBER_OF_USERS = 100
+    NUMBER_OF_USERS = 3
     NUMBER_OF_POOLS = 10
     init_database()
     # clear the table if it exists
