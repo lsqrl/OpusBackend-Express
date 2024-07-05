@@ -10,19 +10,27 @@ from sqlalchemy.ext.declarative import declarative_base
 # How to define foreign key
 
 class Parent(Base):
-...
+    __tablename__ = 'parents'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
     children = relationship('Child', back_populates='parent')
 
 class Child(Base):
-...
+    __tablename__ = 'children'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
     parent_id = Column(Integer, ForeignKey('parents.id'))
+    
     parent = relationship('Parent', back_populates='children')
 """
 
 Base = declarative_base()
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
     registered_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
     role_id = Column(String, nullable=False)
@@ -40,12 +48,10 @@ class User(Base):
             name='role_id_check'
         ),
         CheckConstraint(
-            "age >= 18 AND age <= 99",
+            'age >= 18 AND age <= 99',
             name='age_check'
         )
     )
-
-    child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_user')
 
     def __repr__(self):
         return (f"<User(name='{self.name}', email='{self.email}', role_id='{self.role_id}', "
@@ -62,11 +68,9 @@ class User(Base):
     
 class Currency(Base):
     __tablename__ = 'currency'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     abbreviation = Column(String(8), nullable=False)
-
-    child_lp = relationship('LiquidityPool', back_populates='parent_c')
 
     def __repr__(self):
         return f"<Currency(id={self.id}, name='{self.name}', abbreviation='{self.abbreviation}')>"
@@ -78,11 +82,8 @@ class Currency(Base):
 class LiquidityPool(Base):
     __tablename__ = 'liquidity_pool'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency_id = Column(String(100), nullable=False)
     balance = Column(Float, nullable=False)
-    
-    parent_c = relationship('Currency', back_populates='child_lp')
-    child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_pool')
 
     def __repr__(self):
         return f"<LiquidityPool(id={self.id}, currency_id='{self.currency_id}', balance={self.balance})>"
@@ -95,12 +96,9 @@ class LiquidityPoolTrans(Base):
     __tablename__ = 'liquidity_pool_trans'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    pool_id = Column(Integer, ForeignKey('liquidity_pool.id'))
+    user_id = Column(String(100), nullable=False)
+    pool_id = Column(String(100), nullable=False)
     amount = Column(Float, nullable=False)
-
-    parent_user = relationship('User', back_populates='child_lpt')
-    parent_pool = relationship('LiquidityPool', back_populates='child_lpt')
 
     def __repr__(self):
         return (f"<LiquidityPoolTrans(id={self.id}, timestamp='{self.timestamp}', "
@@ -143,31 +141,13 @@ class Option(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
     abbreviation = Column(String(100), nullable=False)
-    maturity = Column(DateTime, nullable=False)
-    strike = Column(Float, nullable=False)
-    direction = Column(String(4), nullable=False)
-    strategy = Column(String(4), nullable=False)
+    maturity = Column(DateTime, nullable=False)    # 1M, 2M, 3M, 6M, 1Y, Custom
+    strike = Column(Float, nullable=False)         # ATM, Spot +-5%, Custom
+    direction = Column(String(4), nullable=False)  # "buy" or "sell"
+    strategy = Column(String(4), nullable=False)       # "call" or "put"
     premium = Column(Float, nullable=False)
     margin = Column(Float, nullable=False)
     notional = Column(Float, nullable=False)
-    __table_args__ = (
-        CheckConstraint(
-            "maturity_id IN ('1M', '2M', '3M', '6M', '1Y', 'Custom')",
-            name='maturity_check'
-        ),
-        CheckConstraint(
-            "strike IN ('ATM', 'Spot +-5%', 'Custom')",
-            name='strike_check'
-        ),
-        CheckConstraint(
-            "direction IN ('buy', 'sell')",
-            name='direction_check'
-        ),
-        CheckConstraint(
-            "strategy IN ('call', 'put')",
-            name='strategy_check'
-        )
-    )
 
     def __repr__(self):
         return (f"<Option(id={self.id}, name='{self.name}', abbreviation='{self.abbreviation}', maturity='{self.maturity}', "
