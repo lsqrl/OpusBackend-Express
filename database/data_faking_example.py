@@ -82,6 +82,21 @@ def fake_liquidity_pool_table(session, num_pools):
         session.add(fake_liquidity_pool)
         session.commit()
 
+def fake_liquidity_pool_trans(session):
+    pass
+
+def fake_margin_account(session):
+    pass
+
+def fake_margin_account_trans(session):
+    pass
+
+def fake_option(session):
+    pass
+
+def fake_trade_log(session):
+    pass
+
 def transaction_example():
     tranDate = [] 
     custName = []

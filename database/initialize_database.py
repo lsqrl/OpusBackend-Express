@@ -42,6 +42,13 @@ if __name__ == "__main__":
     fake_user_table(session=session, num_rows=NUMBER_OF_USERS)
     fake_currency_table(session=session)
     fake_liquidity_pool_table(session=session, num_pools=NUMBER_OF_POOLS)
+    
+    fake_liquidity_pool_trans(session)
+    fake_margin_account(session)
+    fake_margin_account_trans(session)
+    fake_option(session)
+    fake_trade_log(session)
+
     # Check if the users were written
     #for user in session.query(User).order_by(User.id):
     #    print(user)
