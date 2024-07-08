@@ -34,6 +34,7 @@ class Users(Base):
     gender = Column(String(100), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
     kyc_aml_id = Column(LargeBinary(100), nullable=False)
+    #is_blocked = Column(String(2), nullable=False) # 'Y' or 'N'
     __table_args__ = (
         CheckConstraint(
             "role_id IN ('Provider', 'Taker', 'Both')",
@@ -51,8 +52,8 @@ class Users(Base):
 
     child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_user')
     
-    child_lpa = relationship('LiquidityProviderAccount', back_populates='parent_user')
-    child_ma = relationship('MarginAccount', back_populates='parent_user')
+    child_lpa = relationship('LiquidityProviderAccountTrans', back_populates='parent_user')
+    child_ma = relationship('MarginAccountTrans', back_populates='parent_user')
     
     child_tl = relationship('TradeLog', back_populates='parent_user')
 
@@ -83,40 +84,23 @@ class Currency(Base):
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
-class LiquidityProviderAccount(Base):
-    __tablename__ = 'liquidity_provider_account'
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    balance = Column(Float, nullable=False)
-    
-    __table_args__ = (
-        CheckConstraint('balance >= 0', name='positive_balance'),
-    )
-    
-    parent_user = relationship('Users', back_populates='child_lpa')
-    child_lpat = relationship('LiquidityProviderAccountTransaction', back_populates='parent_account')
-
-    def __repr__(self):
-        return f"<LiquidityProviderAccount(id={self.id}, user_id={self.user_id}, balance={self.balance})>"
-    
-class LiquidityProviderAccountTransaction(Base):
+class LiquidityProviderAccountTrans(Base):
     __tablename__ = 'liquidity_provider_account_transactions'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(Integer, ForeignKey('liquidity_provider_account.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     transaction_type = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    parent_account = relationship('LiquidityProviderAccount', back_populates='child_lpat')
+    parent_user = relationship('Users', back_populates='child_lpa')
     
     __table_args__ = (
         CheckConstraint("transaction_type IN ('internal_deposit', 'internal_withdrawal', 'external_deposit', 'external_withdrawal')", name='valid_transaction_type'),
     ) 
     
     def __repr__(self):
-        return (f"<LiquidityProviderAccountTransaction(id={self.id}, account_id={self.account_id}, "
+        return (f"<LiquidityProviderAccountTrans(id={self.id}, account_id={self.account_id}, "
                 f"transaction_type='{self.transaction_type}', amount={self.amount}, "
                 f"timestamp='{self.timestamp}')>") 
     
@@ -161,34 +145,19 @@ class LiquidityPoolTrans(Base):
     parent_pool = relationship('LiquidityPool', back_populates='child_lpt')
 
     def __repr__(self):
-        return (f"<LiquidityPoolTransaction(id={self.id}, pool_id={self.pool_id}, user_id={self.user_id}, "
+        return (f"<LiquidityPoolTrans(id={self.id}, pool_id={self.pool_id}, user_id={self.user_id}, "
                 f"user_shares={self.user_shares}, transaction_type='{self.transaction_type}', "
                 f"amount={self.amount}, timestamp='{self.timestamp}')>")
 
-class MarginAccount(Base):
-    __tablename__ = 'margin_account'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    timestamp_opening = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
-
-    parent_user = relationship('Users', back_populates='child_ma')
-    child_mat = relationship('MarginAccountTrans', back_populates='parent_ma')
-
-    def __repr__(self):
-        return (f"<MarginAccount(id={self.id}, timestamp_opening='{self.timestamp_opening}', "
-                f"user_id='{self.user_id}')>")
-
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class MarginAccountTrans(Base):
-    __tablename__ = 'margin_account_tranactions'
+    __tablename__ = 'margin_account_transactions'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    account_id = Column(Integer, ForeignKey('margin_account.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     amount = Column(Float, nullable=False)
 
-    parent_ma = relationship('MarginAccount', back_populates='child_mat')
+    parent_user = relationship('Users', back_populates='child_ma')
 
     def __repr__(self):
         return (f"<MarginAccountTrans(id={self.id}, timestamp='{self.timestamp}', "
