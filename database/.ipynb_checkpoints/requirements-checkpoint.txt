@@ -1,8 +1,0 @@
-bs4==0.0.2
-Faker==25.9.1
-pandas==2.2.2
-polars==0.20.31
-psycopg2==2.9.9
-python-dotenv==1.0.1
-requests==2.32.3
-sqlalchemy==2.0.31
