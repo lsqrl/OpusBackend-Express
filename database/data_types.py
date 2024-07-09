@@ -99,8 +99,17 @@ class LiquidityProviderAccountTrans(Base):
         CheckConstraint("transaction_type IN ('internal_deposit', 'internal_withdrawal', 'external_deposit', 'external_withdrawal')", name='valid_transaction_type'),
     ) 
     
+    def to_dict(self):
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            if isinstance(value, bytes):  # Convert binary data to hex string
+                value = value.hex()
+            result[column.name] = value
+        return result
+    
     def __repr__(self):
-        return (f"<LiquidityProviderAccountTrans(id={self.id}, account_id={self.account_id}, "
+        return (f"<LiquidityProviderAccountTrans(id={self.id}, user_id={self.user_id}, "
                 f"transaction_type='{self.transaction_type}', amount={self.amount}, "
                 f"timestamp='{self.timestamp}')>") 
     
