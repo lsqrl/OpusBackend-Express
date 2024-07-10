@@ -1,5 +1,6 @@
 bs4==0.0.2
 Faker==25.9.1
+flask==3.0.3
 pandas==2.2.2
 polars==0.20.31
 psycopg2==2.9.9
