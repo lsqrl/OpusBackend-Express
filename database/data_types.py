@@ -118,20 +118,12 @@ class LiquidityPool(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     currency_id = Column(Integer, ForeignKey('currency.id'))
-    total_balance = Column(Float, nullable=False)
-    total_shares = Column(Float, nullable=False)
     
-    __table_args__ = (
-        CheckConstraint('total_balance >= 0', name='positive_total_balance'),
-        CheckConstraint('total_shares >= 0', name='positive_total_shares'),
-    )
-
     parent_c = relationship('Currency', back_populates='child_lp')
     child_lpt = relationship('LiquidityPoolTrans', back_populates='parent_pool')
     
     def __repr__(self):
-        return (f"<LiquidityPool(pool_id={self.pool_id}, currency_id='{self.currency_id}', "
-                f"total_balance={self.total_balance}, total_shares={self.total_shares})>")
+        return (f"<LiquidityPool(pool_id={self.pool_id}, currency_id='{self.currency_id}'")
 
 class LiquidityPoolTrans(Base):
     __tablename__ = 'liquidity_pool_transactions'

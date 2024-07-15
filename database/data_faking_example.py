@@ -73,8 +73,6 @@ def fake_liquidity_pool_table(session, num_pools):
         currency_ids = session.query(Currency.id).all()
         return LiquidityPool(
             currency_id=random.choice(currency_ids)[0], # since it returns a tuple
-            total_balance=round(fake.random_number(digits=6) + fake.random.random(), 2),  # Generating a large random balance
-            total_shares=100000
         )
 
     # Create and add fake data to the session
