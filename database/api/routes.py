@@ -63,6 +63,20 @@ def calculate_pool_balance(currency):
     except Exception as e:
         abort(400, description=f"An error occurred: {str(e)}")
 
+@app.route('/calculatePoolShares/<string:currency>', methods=['GET'])
+def calculate_pool_shares(currency):
+    try:
+        session = app.session()
+        currency_id = session.query(Currency).filter_by(abbreviation=currency).first().id
+        liquidity_pool_id = session.query(LiquidityPool).filter_by(currency_id=currency_id).first().id
+        pool_rows = session.query(LiquidityPoolTrans).filter_by(pool_id=liquidity_pool_id).all()
+        total_shares = 0
+        for row in pool_rows:
+            total_shares += row.user_shares
+        return jsonify({"shares": total_shares}), 200
+    except Exception as e:
+        abort(400, description=f"An error occurred: {str(e)}")
+
 @app.route('/calculateUserShares/<string:currency>/<int:user_id>', methods=['GET'])
 def calculate_user_shares(currency, user_id):
     try:
