@@ -116,6 +116,7 @@ class Currency(Base):
     
 class Chain(Base):
     __tablename__ = 'chains'
+    __table_args__ = {'schema': schema_account}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
@@ -131,6 +132,37 @@ class Chain(Base):
             'name': self.name,
             'chain_id': self.chain_id,
             'url': self.url,
+        }
+    
+class Account(Base):
+    __tablename__ = 'accounts'
+    __table_args__ = {'schema': schema_account}
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    counterparty_id = Column(Integer, nullable=False)
+    counterparty_type = Column(String(30), nullable=False)
+    type_id = Column(Integer, nullable=False)
+    opening_time = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
+    closing_time = Column(DateTime, nullable=False, default=datetime(2999, 12, 31, 0, 0))
+    trade_enabled = Column(Boolean, nullable=False, default=True)
+
+    def __repr__(self):
+        return (f"<Account(id={self.id}, counterparty_id={self.counterparty_id}, "
+                f"counterparty_type='{self.counterparty_type}', type_id={self.type_id}, "
+                f"opening_time='{self.opening_time}', active={self.active}, "
+                f"closing_time='{self.closing_time}', trade_enabled={self.trade_enabled})>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'counterparty_id': self.counterparty_id,
+            'counterparty_type': self.counterparty_type,
+            'type_id': self.type_id,
+            'opening_time': self.opening_time,
+            'active': self.active,
+            'closing_time': self.closing_time,
+            'trade_enabled': self.trade_enabled,
         }
 
 # Example usage:
