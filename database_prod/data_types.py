@@ -1,12 +1,10 @@
-from sqlalchemy import Column, CheckConstraint, Integer, LargeBinary, Float, String, Boolean, Date, DateTime, CheckConstraint, ForeignKey, create_engine
+from sqlalchemy import Column, CheckConstraint, Integer, BigInteger, LargeBinary, Float, String, Boolean, Date, DateTime, CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import MetaData
 
 Base = declarative_base()
-
-from sqlalchemy import Column, Integer, String, Sequence
-from sqlalchemy.schema import Table, MetaData
 
 # Define metadata for each schema
 schema_counterparty = MetaData(schema='counterparty')
@@ -114,6 +112,25 @@ class Currency(Base):
             'id': self.id,
             'name': self.name,
             'trad_fi': self.trad_fi,
+        }
+    
+class Chain(Base):
+    __tablename__ = 'chains'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    chain_id = Column(BigInteger, nullable=False)
+    url = Column(String(500), nullable=False)
+
+    def __repr__(self):
+        return f"<Chain(id={self.id}, name='{self.name}', chain_id={self.chain_id}, url='{self.url}')>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'chain_id': self.chain_id,
+            'url': self.url,
         }
 
 # Example usage:
