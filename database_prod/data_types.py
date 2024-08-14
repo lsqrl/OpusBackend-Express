@@ -1,11 +1,21 @@
-from sqlalchemy import Column, CheckConstraint, Integer, LargeBinary, Float, String, DateTime, CheckConstraint, ForeignKey, create_engine
+from sqlalchemy import Column, CheckConstraint, Integer, LargeBinary, Float, String, Date, DateTime, CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
 
+Base = declarative_base()
+
+from sqlalchemy import Column, Integer, String, Sequence
+from sqlalchemy.schema import Table, MetaData
+
+# Define metadata for each schema
+schema_counterparty = MetaData(schema='counterparty')
+schema_account = MetaData(schema='account')
+
 # Defining the new entities
 class Retial(Base):
     __tablename__ = 'retail'
+    __table_args__ = {'schema': schema_counterparty}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(300), nullable=False)
@@ -44,6 +54,7 @@ class Retial(Base):
 
 class LegalEntity(Base):
     __tablename__ = 'legal_entities'
+    __table_args__ = {'schema': schema_counterparty}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     legal_entity_name = Column(String(500), nullable=False)
@@ -89,7 +100,6 @@ class Child(Base):
     parent = relationship('Parent', back_populates='children')
 """
 
-Base = declarative_base()
 
 class Users(Base):
     __tablename__ = 'users'
