@@ -17,7 +17,8 @@ schema_market_data_system = MetaData(schema='market_data_system')
 
 # State: generated classes for 1st and 2nd schemas
 
-# Step 1: define all the tables
+# Step 0: define all the tables
+# Step 1: define all the column constraints
 # Step 2: connect all the keys
 # Step 3: generate fake values
 # Step 4: connect via API to web UI
