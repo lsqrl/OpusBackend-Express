@@ -10,6 +10,12 @@ Base = declarative_base()
 schema_counterparty = MetaData(schema='counterparty')
 schema_account = MetaData(schema='account')
 
+# Step 1: define all the tables
+# Step 2: connect all the keys
+# Step 3: generate fake values
+# Step 4: connect via API to web UI
+# Step 5: have different databases for different scenario showcasing in the MVP
+
 # Defining the new entities
 class Retial(Base):
     __tablename__ = 'retail'
