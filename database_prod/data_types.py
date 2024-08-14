@@ -9,6 +9,13 @@ Base = declarative_base()
 # Define metadata for each schema
 schema_counterparty = MetaData(schema='counterparty')
 schema_account = MetaData(schema='account')
+schema_funding_sources = MetaData(schema='funding_sources')
+schema_deposits = MetaData(schema='deposits')
+schema_trades = MetaData(schema='trades')
+schema_funding = MetaData(schema='funding')
+schema_market_data_system = MetaData(schema='market_data_system')
+
+# State: generated classes for 1st and 2nd schemas
 
 # Step 1: define all the tables
 # Step 2: connect all the keys
