@@ -1,4 +1,4 @@
-from sqlalchemy import Column, CheckConstraint, Integer, LargeBinary, Float, String, Date, DateTime, CheckConstraint, ForeignKey, create_engine
+from sqlalchemy import Column, CheckConstraint, Integer, LargeBinary, Float, String, Boolean, Date, DateTime, CheckConstraint, ForeignKey, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
@@ -80,6 +80,40 @@ class LegalEntity(Base):
             'legal_address': self.legal_address,
             'country_of_incorporation': self.country_of_incorporation,
             'dossier_id': self.dossier_id
+        }
+
+class AccountType(Base):
+    __tablename__ = 'account_types'
+    __table_args__ = {'schema': schema_account}
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(20), nullable=False)
+
+    def __repr__(self):
+        return f"<AccountType(id={self.id}, name='{self.name}')>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
+    
+class Currency(Base):
+    __tablename__ = 'currencies'
+    __table_args__ = {'schema': schema_account}
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(20), nullable=False)
+    trad_fi = Column(Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return f"<Currencies(id={self.id}, name='{self.name}', trad_fi={self.trad_fi})>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'trad_fi': self.trad_fi,
         }
 
 # Example usage:
