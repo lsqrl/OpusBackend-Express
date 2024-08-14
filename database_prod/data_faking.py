@@ -34,3 +34,5 @@ session.commit()
 
 
 
+new_account = Account(id=None, counterparty_id=12345, counterparty_type='Broker', type_id=1, 
+        opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
