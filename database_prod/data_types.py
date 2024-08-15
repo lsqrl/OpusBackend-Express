@@ -1,5 +1,5 @@
-from sqlalchemy import Column, CheckConstraint, Integer, BigInteger, LargeBinary, Float, \
-    String, Boolean, Date, DateTime, ForeignKey
+from sqlalchemy import Column, CheckConstraint, UniqueConstraint, Integer, BigInteger, \
+    LargeBinary, Float, String, Boolean, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,6 +8,7 @@ from sqlalchemy.schema import MetaData
 Base = declarative_base()
 
 # Define metadata for each schema
+schema_old = MetaData(schema='old')
 schema_counterparty = MetaData(schema='counterparty')
 schema_account = MetaData(schema='account')
 schema_funding_sources = MetaData(schema='funding_sources')
@@ -33,9 +34,10 @@ class Retial(Base):
     __table_args__ = (
         {'schema': schema_counterparty},
         CheckConstraint(
-            "gender IN ( 'Male', 'Female', 'Non-binary', 'Other')",
+            "gender IN ('Male', 'Female', 'Non-binary', 'Other')",
             name='gender_check'
-        )
+        ),
+        UniqueConstraint('email', name='uix_email')
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -53,10 +55,12 @@ class Retial(Base):
 
     def __repr__(self):
         return (f"<Person(id={self.id}, name={self.name}, email={self.email}, "
-                f"telephone_number={self.telephone_number}, address_of_residence={self.address_of_residence}, "
-                f"country_of_residence={
-                   self.country_of_residence}, citizenship={self.citizenship}, "
-                f"gender={self.gender}, birth_date={self.birth_date}, ssn={self.ssn}, dossier_id={self.dossier_id})>")
+                f"telephone_number={self.telephone_number}, "
+                "address_of_residence={self.address_of_residence}, "
+                f"country_of_residence={self.country_of_residence}, "
+                "citizenship={self.citizenship}, "
+                f"gender={self.gender}, birth_date={self.birth_date}, "
+                "ssn={self.ssn}, dossier_id={self.dossier_id})>")
 
     def to_dict(self):
         return {
@@ -77,7 +81,10 @@ class Retial(Base):
 
 class LegalEntity(Base):
     __tablename__ = 'legal_entities'
-    __table_args__ = {'schema': schema_counterparty}
+    __table_args__ = (
+        {'schema': schema_counterparty},
+        UniqueConstraint('email', name='uix_email')
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     legal_entity_name = Column(String(500), nullable=False)
@@ -89,10 +96,13 @@ class LegalEntity(Base):
     dossier_id = Column(String(50), nullable=False)
 
     def __repr__(self):
-        return (f"<LegalEntity(id={self.id}, legal_entity_name={self.legal_entity_name}, email={self.email}, "
-                f"telephone_number={self.telephone_number}, legal_address={
-                    self.legal_address}, "
-                f"country_of_incorporation={self.country_of_incorporation}, dossier_id={self.dossier_id})>")
+        return (f"<LegalEntity(id={self.id}, "
+                "legal_entity_name={self.legal_entity_name}, "
+                "email={self.email}, "
+                f"telephone_number={self.telephone_number}, "
+                "legal_address={self.legal_address}, "
+                f"country_of_incorporation={self.country_of_incorporation}, "
+                "dossier_id={self.dossier_id})>")
 
     def to_dict(self):
         return {
@@ -109,7 +119,13 @@ class LegalEntity(Base):
 
 class AccountType(Base):
     __tablename__ = 'account_types'
-    __table_args__ = {'schema': schema_account}
+    __table_args__ = (
+        {'schema': schema_account},
+        CheckConstraint(
+            "name IN ('Depositor', 'System')",
+            name='account_check'
+        )
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(20), nullable=False)
@@ -234,6 +250,7 @@ class Users(Base):
     kyc_aml_id = Column(LargeBinary(100), nullable=False)
     # is_blocked = Column(String(2), nullable=False) # 'Y' or 'N'
     __table_args__ = (
+        {'schema': schema_old},
         CheckConstraint(
             "role_id IN ('Provider', 'Taker', 'Both')",
             name='role_id_check'
@@ -272,7 +289,8 @@ class Users(Base):
 
 
 class Currency(Base):
-    __tablename__ = 'currency'
+    __tablename__ = 'currency' 
+    __table_args__ = {'schema': schema_old}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
     abbreviation = Column(String(8), nullable=False)
@@ -288,6 +306,7 @@ class Currency(Base):
 
 class LiquidityProviderAccountTrans(Base):
     __tablename__ = 'liquidity_provider_account_transactions'
+    __table_args__ = {'schema': schema_old}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
@@ -320,6 +339,7 @@ class LiquidityProviderAccountTrans(Base):
 
 class LiquidityPool(Base):
     __tablename__ = 'liquidity_pool'
+    __table_args__ = {'schema': schema_old}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     currency_id = Column(Integer, ForeignKey('currency.id'))
@@ -334,6 +354,7 @@ class LiquidityPool(Base):
 
 class LiquidityPoolTrans(Base):
     __tablename__ = 'liquidity_pool_transactions'
+    __table_args__ = {'schema': schema_old}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))  # can be null
@@ -362,6 +383,7 @@ class LiquidityPoolTrans(Base):
 
 class MarginAccountTrans(Base):
     __tablename__ = 'margin_account_transactions'
+    __table_args__ = {'schema': schema_old}
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
@@ -391,6 +413,7 @@ class Options(Base):
     margin = Column(Float, nullable=False)
     notional = Column(Float, nullable=False)
     __table_args__ = (
+        {'schema': schema_old},
         CheckConstraint(
             "maturity IN ('1M', '2M', '3M', '6M', '1Y', 'Custom')",
             name='maturity_check'

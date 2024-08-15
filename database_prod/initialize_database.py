@@ -1,9 +1,8 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy import  func
+from sqlalchemy import func
 from sqlalchemy.engine import URL
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from data_types import *
 import os
 
@@ -21,6 +20,7 @@ url = URL.create(
     port=5432,
     database="postgres"
 )
+
 
 def init_database():
     engine = create_engine(url)
