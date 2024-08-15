@@ -124,6 +124,9 @@ class AccountType(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(20), nullable=False)
+    
+    child_at = relationship('Account',
+                             back_populates='parent_a')
 
     def __repr__(self):
         return f"<AccountType(id={self.id}, name='{self.name}')>"
@@ -182,13 +185,16 @@ class Account(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     counterparty_id = Column(Integer, nullable=False)
     counterparty_type = Column(String(30), nullable=False)
-    type_id = Column(Integer, nullable=False)
+    type_id = Column(Integer, ForeignKey('account.account_types.id'))
     opening_time = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
     active = Column(Boolean, nullable=False, default=True)
     closing_time = Column(DateTime, nullable=False,
                           default=datetime(2999, 12, 31, 0, 0))
     trade_enabled = Column(Boolean, nullable=False, default=True)
+
+    parent_a = relationship('AccountType', back_populates='child_at')
+
 
     def __repr__(self):
         return (f"<Account(id={self.id}, counterparty_id={self.counterparty_id}, "

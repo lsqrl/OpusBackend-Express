@@ -62,6 +62,7 @@ if __name__ == "__main__":
     # new database
     fake_retail(session)
     fake_legal_entity(session)
+    fake_account_type(session)
     fake_account(session)
 
     # Check if the users were written

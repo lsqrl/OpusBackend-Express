@@ -9,7 +9,7 @@ import numpy as np
 import random
 from itertools import islice
 from data_types import Users, Currency, LiquidityPool, Retail, LegalEntity, \
-    Account
+    Account, AccountType
 
 fake = Faker()
 
@@ -156,6 +156,12 @@ def fake_legal_entity(session):
 
     session.add(new_legal_entity_record)
     session.commit()
+
+def fake_account_type(session):
+    for type in ['Depositor', 'System']:   
+        account_type = AccountType(name=type)
+        session.add(account_type)
+        session.commit()
 
 def fake_account(session):
     new_account = Account(counterparty_id=12345, counterparty_type='Broker', type_id=1, 
