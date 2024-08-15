@@ -163,7 +163,7 @@ class Chain(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
-    chain_id = Column(BigInteger, nullable=False)
+    chain_id = Column(BigInteger, nullable=True) # Solana has no ID
     url = Column(String(500), nullable=False)
 
     def __repr__(self):
@@ -271,6 +271,8 @@ for activity in session.query(Activity).all():
 
 
 """
+
+
 
 class Users(Base):
     __tablename__ = 'users'

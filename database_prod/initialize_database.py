@@ -22,7 +22,6 @@ url = URL.create(
     database="postgres"
 )
 
-
 def init_database():
     global connection, engine
     engine = create_engine(url)
@@ -83,6 +82,7 @@ if __name__ == "__main__":
     fake_account_type(session)
     fake_account(session)
     fake_currencies_table(session)
+    fake_chains(session)
 
     print_database_state()
     #session.close()     

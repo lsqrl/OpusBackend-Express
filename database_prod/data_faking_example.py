@@ -9,7 +9,7 @@ import numpy as np
 import random
 from itertools import islice
 from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
-    LegalEntity, Account, AccountType
+    LegalEntity, Account, AccountType, Chain
 
 fake = Faker()
 
@@ -174,4 +174,15 @@ def fake_currencies_table(session):
     IS_TRAD_FI = [True, True, True, False, False]
     for n, a in zip(CURRENCY_NAMES, IS_TRAD_FI):
         session.add(Currencies(name=n, trad_fi=a))  
+        session.commit()
+
+def fake_chains(session):
+    CHAIN_NAMES = ['Mainnet', 'Solana', 'Arbitrum']
+    CHAIN_IDS = [1, None, 42161]
+    CHAIN_URLS = ['https://mainnet.infura.io/v3/',
+                  'https://api.mainnet-beta.solana.com',
+                  'https://arb1.arbitrum.io/rpc']
+    for n, id, u in zip(CHAIN_NAMES, CHAIN_IDS, CHAIN_URLS):
+        chain = Chain(name=n, chain_id=id, url=u)
+        session.add(chain)
         session.commit()
