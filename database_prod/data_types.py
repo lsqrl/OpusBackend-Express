@@ -208,6 +208,66 @@ class Account(Base):
             'closing_time': self.closing_time,
             'trade_enabled': self.trade_enabled,
         }
+"""
+Given the fact that there are 2 options for counterparties, we need to be able to handle polymorphic relaitonship
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+class Organization(Base):
+    __tablename__ = 'organizations'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+class Activity(Base):
+    __tablename__ = 'activities'
+    id = Column(Integer, primary_key=True)
+    entity_id = Column(Integer)  # This could be a User ID or an Organization ID
+    entity_type = Column(String)  # This indicates which table the entity_id refers to
+
+    # Polymorphic relationship
+    @property
+    def entity(self):
+        if self.entity_type == 'user':
+            return self.session.query(User).filter_by(id=self.entity_id).first()
+        elif self.entity_type == 'organization':
+            return self.session.query(Organization).filter_by(id=self.entity_id).first()
+
+# Setup database (in-memory SQLite for example purposes)
+engine = create_engine('sqlite:///:memory:')
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Example usage
+user = User(name='John Doe')
+organization = Organization(name='Acme Inc.')
+activity1 = Activity(entity_id=1, entity_type='user')
+activity2 = Activity(entity_id=1, entity_type='organization')
+
+session.add(user)
+session.add(organization)
+session.add(activity1)
+session.add(activity2)
+session.commit()
+
+# Accessing the entity
+for activity in session.query(Activity).all():
+    print(activity.entity)
+
+
+"""
+
+
+
 
 # Example usage:
 
