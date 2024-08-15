@@ -9,7 +9,7 @@ import numpy as np
 import random
 from itertools import islice
 from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
-    LegalEntity, Account, AccountType, Chain
+    Institutional, Account, AccountType, Chain
 
 fake = Faker()
 
@@ -144,7 +144,7 @@ def fake_retail(session):
 
 
 def fake_legal_entity(session):
-    new_legal_entity_record = LegalEntity(
+    new_legal_entity_record = Institutional(
         legal_entity_name="Lemma Finance Ltd",
         onboarding_datetime=datetime.strptime('2024-07-23T14:20:00', '%Y-%m-%dT%H:%M:%S'),
         email="support@lemma.io",
@@ -164,7 +164,7 @@ def fake_account_type(session):
         session.commit()
 
 def fake_account(session):
-    new_account = Account(counterparty_id=12345, counterparty_type='Broker', type_id=1, 
+    new_account = Account(counterparty_id=12345, counterparty_type='Institutional', type_id=1, 
             opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
     session.add(new_account)
     session.commit()
