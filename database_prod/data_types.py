@@ -312,6 +312,45 @@ class TradeToPortfolio(Base):
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
+class FundingFromFiat(Base):
+    __tablename__ = 'funding_from_fiat'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FundingFromCrypto(Base):
+    __tablename__ = 'funding_from_crypto'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class Loans(Base):
+    __tablename__ = 'loans'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FXSpot(Base):
+    __tablename__ = 'fx_spot'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoSpot(Base):
+    __tablename__ = 'crypto_spot'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoPerpetual(Base):
+    __tablename__ = 'crypto_perpetual'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FiatOptions(Base):
+    __tablename__ = 'fiat_options'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoOptions(Base):
+    __tablename__ = 'crypto_options'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
 
 """
 We will need a junction table to associate tradeIDs to portfolios
