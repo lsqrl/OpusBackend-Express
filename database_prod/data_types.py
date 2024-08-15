@@ -8,14 +8,17 @@ from sqlalchemy.schema import MetaData
 Base = declarative_base()
 
 # Define metadata for each schema
-schema_old = MetaData(schema='old')
-schema_counterparty = MetaData(schema='counterparty')
-schema_account = MetaData(schema='account')
-schema_funding_sources = MetaData(schema='funding_sources')
-schema_deposits = MetaData(schema='deposits')
-schema_trades = MetaData(schema='trades')
-schema_funding = MetaData(schema='funding')
-schema_market_data_system = MetaData(schema='market_data_system')
+schema_old = 'old'  # MetaData(schema='old')
+schema_counterparty = 'counterparty'  # MetaData(schema='counterparty')
+schema_account = 'account'  # MetaData(schema='account')
+# MetaData(schema='funding_sources')
+schema_funding_sources = 'funding_sources'
+schema_deposits = 'deposits'  # MetaData(schema='deposits')
+schema_trades = 'trades'  # MetaData(schema='trades')
+schema_funding = 'funding'  # MetaData(schema='funding')
+# MetaData(schema='market_data_system')
+schema_market_data_system = 'market_data_system'
+
 
 # State: generated classes for 1st and 2nd schemas
 
@@ -32,18 +35,17 @@ schema_market_data_system = MetaData(schema='market_data_system')
 class Retial(Base):
     __tablename__ = 'retail'
     __table_args__ = (
-        {'schema': schema_counterparty},
         CheckConstraint(
             "gender IN ('Male', 'Female', 'Non-binary', 'Other')",
             name='gender_check'
         ),
-        UniqueConstraint('email', name='uix_email')
+        {'schema': schema_counterparty}
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(300), nullable=False)
     onboarding_datetime = Column(DateTime, nullable=False)
-    email = Column(String(254), nullable=False)
+    email = Column(String(254), nullable=False, unique=True)
     telephone_number = Column(String(100), nullable=False)
     address_of_residence = Column(String(300), nullable=False)
     country_of_residence = Column(String(200), nullable=False)
@@ -82,14 +84,13 @@ class Retial(Base):
 class LegalEntity(Base):
     __tablename__ = 'legal_entities'
     __table_args__ = (
-        {'schema': schema_counterparty},
-        UniqueConstraint('email', name='uix_email')
+        {'schema': schema_counterparty}
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     legal_entity_name = Column(String(500), nullable=False)
     onboarding_datetime = Column(DateTime, nullable=False)
-    email = Column(String(254), nullable=False)
+    email = Column(String(254), nullable=False, unique=True)
     telephone_number = Column(String(100), nullable=False)
     legal_address = Column(String(300), nullable=False)
     country_of_incorporation = Column(String(200), nullable=False)
@@ -120,11 +121,11 @@ class LegalEntity(Base):
 class AccountType(Base):
     __tablename__ = 'account_types'
     __table_args__ = (
-        {'schema': schema_account},
         CheckConstraint(
             "name IN ('Depositor', 'System')",
             name='account_check'
-        )
+        ),
+        {'schema': schema_account}
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -140,7 +141,7 @@ class AccountType(Base):
         }
 
 
-class Currency(Base):
+class Currencies(Base):
     __tablename__ = 'currencies'
     __table_args__ = {'schema': schema_account}
 
@@ -250,7 +251,6 @@ class Users(Base):
     kyc_aml_id = Column(LargeBinary(100), nullable=False)
     # is_blocked = Column(String(2), nullable=False) # 'Y' or 'N'
     __table_args__ = (
-        {'schema': schema_old},
         CheckConstraint(
             "role_id IN ('Provider', 'Taker', 'Both')",
             name='role_id_check'
@@ -262,7 +262,8 @@ class Users(Base):
         CheckConstraint(
             "gender IN ( 'Male', 'Female', 'Non-binary', 'Other')",
             name='gender_check'
-        )
+        ),
+        {'schema': schema_old}
     )
 
     child_lpt = relationship('LiquidityPoolTrans',
@@ -289,7 +290,7 @@ class Users(Base):
 
 
 class Currency(Base):
-    __tablename__ = 'currency' 
+    __tablename__ = 'currency'
     __table_args__ = {'schema': schema_old}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
@@ -306,20 +307,20 @@ class Currency(Base):
 
 class LiquidityProviderAccountTrans(Base):
     __tablename__ = 'liquidity_provider_account_transactions'
-    __table_args__ = {'schema': schema_old}
+    __table_args__ = (
+        CheckConstraint(
+            "transaction_type IN ('internal_deposit', 'internal_withdrawal', 'external_deposit', 'external_withdrawal')", 
+            name='valid_transaction_type'),
+        {'schema': schema_old}
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('old.users.id'))
     transaction_type = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     parent_user = relationship('Users', back_populates='child_lpa')
-
-    __table_args__ = (
-        CheckConstraint(
-            "transaction_type IN ('internal_deposit', 'internal_withdrawal', 'external_deposit', 'external_withdrawal')", name='valid_transaction_type'),
-    )
 
     def to_dict(self):
         result = {}
@@ -342,7 +343,7 @@ class LiquidityPool(Base):
     __table_args__ = {'schema': schema_old}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency_id = Column(Integer, ForeignKey('old.currency.id'))
 
     parent_c = relationship('Currency', back_populates='child_lp')
     child_lpt = relationship('LiquidityPoolTrans',
@@ -354,22 +355,21 @@ class LiquidityPool(Base):
 
 class LiquidityPoolTrans(Base):
     __tablename__ = 'liquidity_pool_transactions'
-    __table_args__ = {'schema': schema_old}
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'))  # can be null
-    pool_id = Column(Integer, ForeignKey('liquidity_pool.id'), nullable=False)
-    user_shares = Column(Float)
-    transaction_type = Column(String, nullable=False)
-    amount = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
-
     __table_args__ = (
         CheckConstraint("(transaction_type IN ('allocate', 'deallocate') AND user_id IS NOT NULL) OR transaction_type NOT IN ('allocate', 'deallocate')",
                         name='user_id_required_for_allocate_deallocate'),
         CheckConstraint("(transaction_type = 'allocate' AND user_shares > 0) OR (transaction_type = 'deallocate' AND user_shares < 0) OR transaction_type NOT IN ('allocate', 'deallocate')", name='user_shares_sign'),
-        CheckConstraint("(transaction_type = 'allocate' AND amount > 0) OR (transaction_type = 'deallocate' AND amount < 0) OR transaction_type NOT IN ('allocate', 'deallocate')", name='amount_sign')
+        CheckConstraint("(transaction_type = 'allocate' AND amount > 0) OR (transaction_type = 'deallocate' AND amount < 0) OR transaction_type NOT IN ('allocate', 'deallocate')", name='amount_sign'),
+        {'schema': schema_old}
     )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('old.users.id'))  # can be null
+    pool_id = Column(Integer, ForeignKey('old.liquidity_pool.id'), nullable=False)
+    user_shares = Column(Float)
+    transaction_type = Column(String, nullable=False)
+    amount = Column(Float, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     parent_user = relationship('Users', back_populates='child_lpt')
     parent_pool = relationship('LiquidityPool', back_populates='child_lpt')
@@ -387,7 +387,7 @@ class MarginAccountTrans(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('old.users.id'))
     amount = Column(Float, nullable=False)
 
     parent_user = relationship('Users', back_populates='child_ma')
@@ -413,7 +413,6 @@ class Options(Base):
     margin = Column(Float, nullable=False)
     notional = Column(Float, nullable=False)
     __table_args__ = (
-        {'schema': schema_old},
         CheckConstraint(
             "maturity IN ('1M', '2M', '3M', '6M', '1Y', 'Custom')",
             name='maturity_check'
@@ -429,7 +428,8 @@ class Options(Base):
         CheckConstraint(
             "strategy IN ('call', 'put')",
             name='strategy_check'
-        )
+        ),
+        {'schema': schema_old}
     )
 
     child_tl = relationship('TradeLog', back_populates='parent_op')
@@ -446,11 +446,12 @@ class Options(Base):
 
 class TradeLog(Base):
     __tablename__ = 'trade_log'
+    __table_args__ = {'schema': schema_old}
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
-    option_id = Column(ForeignKey('options.id'))
-    user_id = Column(ForeignKey('users.id'))
+    option_id = Column(ForeignKey('old.options.id'))
+    user_id = Column(ForeignKey('old.users.id'))
 
     parent_op = relationship('Options', back_populates='child_tl')
     parent_user = relationship('Users', back_populates='child_tl')
