@@ -8,8 +8,8 @@ import pandas as pd
 import numpy as np
 import random
 from itertools import islice
-from data_types import Users, Currency, LiquidityPool, Retail, LegalEntity, \
-    Account, AccountType
+from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
+    LegalEntity, Account, AccountType
 
 fake = Faker()
 
@@ -168,3 +168,10 @@ def fake_account(session):
             opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
     session.add(new_account)
     session.commit()
+
+def fake_currencies_table(session):
+    CURRENCY_NAMES = ['USD', 'EUR', 'MXN', 'BTC', 'ETH']
+    IS_TRAD_FI = [True, True, True, False, False]
+    for n, a in zip(CURRENCY_NAMES, IS_TRAD_FI):
+        session.add(Currencies(name=n, trad_fi=a))  
+        session.commit()

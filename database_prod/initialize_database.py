@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import func
 from sqlalchemy.engine import URL
@@ -8,6 +8,7 @@ from data_types import *
 import os
 
 connection = None
+engine = None
 session = None
 
 load_dotenv()
@@ -23,8 +24,8 @@ url = URL.create(
 
 
 def init_database():
+    global connection, engine
     engine = create_engine(url)
-    global connection
     connection = engine.connect()
     Base.metadata.drop_all(engine)    # drop all
     with engine.connect() as connection:
@@ -40,6 +41,23 @@ def init_database():
     Session = sessionmaker(bind=engine)
     global session
     session = Session()
+
+def print_database_state():
+    global engine
+    connection = engine.connect()
+    inspector = inspect(engine)
+    schemas = inspector.get_schema_names()
+
+    # Iterate over each schema
+    for schema in schemas:
+        # Get all tables in the schema
+        tables = inspector.get_table_names(schema=schema)
+        # Iterate over each table in the schema
+        for table_name in tables:
+            row_count = connection.execute(text(f'SELECT COUNT(*) FROM {schema}.{table_name}')).scalar()
+            
+            print(f"Rows: {row_count} in Table: {schema}.{table_name}")
+
 
 if __name__ == "__main__":
     init_database()
@@ -64,9 +82,7 @@ if __name__ == "__main__":
     fake_legal_entity(session)
     fake_account_type(session)
     fake_account(session)
+    fake_currencies_table(session)
 
-    # Check if the users were written
-    #for user in session.query(Users).order_by(User.id):
-    #    print(user)
-    user_count = session.query(func.count(Users.id)).scalar()
-    print(f"Number of entries in the 'users' table: {user_count}")
+    print_database_state()
+    #session.close()     
