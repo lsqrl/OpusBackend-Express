@@ -8,19 +8,14 @@ from sqlalchemy.schema import MetaData
 Base = declarative_base()
 
 # Define metadata for each schema
-schema_old = 'old'  # MetaData(schema='old')
-schema_counterparty = 'counterparty'  # MetaData(schema='counterparty')
-schema_account = 'account'  # MetaData(schema='account')
-# MetaData(schema='funding_sources')
+schema_old = 'old'
+schema_counterparty = 'counterparty'
+schema_account = 'account'
 schema_funding_sources = 'funding_sources'
-schema_deposits = 'deposits'  # MetaData(schema='deposits')
-schema_trades = 'trades'  # MetaData(schema='trades')
-schema_funding = 'funding'  # MetaData(schema='funding')
-# MetaData(schema='market_data_system')
+schema_deposits = 'deposits'
+schema_trades = 'trades'
+schema_funding = 'funding'
 schema_market_data_system = 'market_data_system'
-
-
-# State: generated classes for 1st and 2nd schemas
 
 # Step 0: define all the tables
 # Step 1: define all the column constraints via table args next to schema name
@@ -30,7 +25,6 @@ schema_market_data_system = 'market_data_system'
 # Step 5: have different databases for different scenario showcasing in the MVP
 
 # Defining the new entities
-
 
 class Retial(Base):
     __tablename__ = 'retail'
