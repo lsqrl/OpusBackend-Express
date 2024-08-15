@@ -355,7 +355,8 @@ class LiquidityProviderAccountTrans(Base):
     user_id = Column(Integer, ForeignKey('old.users.id'))
     transaction_type = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
 
     parent_user = relationship('Users', back_populates='child_lpa')
 
@@ -406,7 +407,8 @@ class LiquidityPoolTrans(Base):
     user_shares = Column(Float)
     transaction_type = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
 
     parent_user = relationship('Users', back_populates='child_lpt')
     parent_pool = relationship('LiquidityPool', back_populates='child_lpt')
