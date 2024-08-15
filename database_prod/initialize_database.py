@@ -22,6 +22,7 @@ url = URL.create(
     database="postgres"
 )
 
+
 def init_database():
     global connection, engine
     engine = create_engine(url)
