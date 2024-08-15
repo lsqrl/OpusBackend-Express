@@ -277,7 +277,6 @@ class Wallet(Base):
     __table_args__ = {'schema': schema_funding_sources}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-
 class BankAccount(Base):
     __tablename__ = 'bank_accounts'
     __table_args__ = {'schema': schema_funding_sources}
@@ -285,12 +284,32 @@ class BankAccount(Base):
 
 class BankDeposit(Base):
     __tablename__ = 'bank_deposits'
-    __table_ards__ = {'schema': schema_deposits}
+    __table_args__ = {'schema': schema_deposits}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
 class CryptoDeposit(Base):
     __tablename__ = 'crypto_deposits'
-    __table_ards__ = {'schema': schema_deposits}
+    __table_args__ = {'schema': schema_deposits}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class TradeType(Base):
+    __tablename__ = 'trade_types'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+class Instrument(Base):
+    __tablename__ = 'instruments'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+class Portfolio(Base):
+    __tablename__ = 'portfolios'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class TradeToPortfolio(Base):
+    __tablename__ = 'trade_to_portfolio'
+    __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
 
@@ -329,7 +348,7 @@ class Course(Base):
     students = relationship('Student', secondary=enrollment_table, back_populates='courses')
 
     Session = sessionmaker(bind=engine)
-    
+
 session = Session()
 
 # Create some students and courses

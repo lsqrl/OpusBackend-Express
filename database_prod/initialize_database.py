@@ -22,16 +22,17 @@ url = URL.create(
     database="postgres"
 )
 
-
 def init_database():
-    global connection, engine
+    global connection, engine, session
     engine = create_engine(url)
     connection = engine.connect()
-    Base.metadata.drop_all(engine)    # drop all
+    Base.metadata.drop_all(engine)    # drop all tables
     with engine.connect() as connection:
         # Execute raw SQL to create a schema
         for schema in ['old', 'counterparty', 'account', 'funding_sources', 
                        'deposits', 'trades', 'funding', 'market_data_system']:
+            connection.execute(text(f'DROP SCHEMA IF EXISTS {schema} CASCADE')) # drop all schemas
+            connection.commit()
             connection.execute(CreateSchema(schema, if_not_exists=True))
             connection.execute(text(f"GRANT CREATE ON SCHEMA {schema} TO {url.username};"))
             # allow user to work with schemas beyond public
@@ -39,7 +40,6 @@ def init_database():
 
     Base.metadata.create_all(engine)  # start over
     Session = sessionmaker(bind=engine)
-    global session
     session = Session()
 
 def print_database_state():
