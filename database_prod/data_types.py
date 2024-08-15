@@ -272,29 +272,6 @@ for activity in session.query(Activity).all():
 
 """
 
-
-
-
-# Example usage:
-
-
-# we need to make sure to establish relationships between different entities
-# we should declare most of the tables immutable (maybe we need to have a timestamp for everything
-# in the immutable case)
-"""
-# How to define foreign key
-
-class Parent(Base):
-...
-    children = relationship('Child', back_populates='parent')
-
-class Child(Base):
-...
-    parent_id = Column(Integer, ForeignKey('parents.id'))
-    parent = relationship('Parent', back_populates='children')
-"""
-
-
 class Users(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
