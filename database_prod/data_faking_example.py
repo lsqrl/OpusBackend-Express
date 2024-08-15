@@ -1,13 +1,15 @@
 # Here we are going to have a set of routines that fakes the data in the database such that we can 
 # showcase the features
 # Prior to the cumbersome actual data selection
+from datetime import datetime, date
 from faker.providers import DynamicProvider
 from faker import Faker
 import pandas as pd
 import numpy as np
 import random
 from itertools import islice
-from data_types import Users, Currency, LiquidityPool
+from data_types import Users, Currency, LiquidityPool, Retail, LegalEntity, \
+    Account
 
 fake = Faker()
 
@@ -122,3 +124,41 @@ def transaction_example():
     df = pd.DataFrame(zip(tranDate, custName, custEmail, cardNum, zipCode, tranAmount), 
                       columns=['tranDate', 'custName', 'custEmail', 'cardNum', 'zipCode', 'tranAmount'])
     df.head(100)
+
+def fake_retail(session):
+    new_retail_record = Retail(
+        name="Alice Smith",
+        onboarding_datetime=datetime.strptime('2024-07-23T14:20:00', '%Y-%m-%dT%H:%M:%S'),
+        email="alice.smith@gmail.com",
+        telephone_number="+1-123-45-67",
+        address_of_residence="217 W Dunklin Street, Jefferson City, MO 65101",
+        country_of_residence="United States of America",
+        citizenship="United States of America",
+        gender="Female",
+        birth_date=date(1990, 5, 15),  # Using a specific date format (YYYY-MM-DD)
+        ssn="123-45-6789",
+        dossier_id="D-0001"
+    )
+    session.add(new_retail_record)
+    session.commit()
+
+
+def fake_legal_entity(session):
+    new_legal_entity_record = LegalEntity(
+        legal_entity_name="Lemma Finance Ltd",
+        onboarding_datetime=datetime.strptime('2024-07-23T14:20:00', '%Y-%m-%dT%H:%M:%S'),
+        email="support@lemma.io",
+        telephone_number="+41 12345678",
+        legal_address="4 Times Square, New York, NY 12345",
+        country_of_incorporation="United States of America",
+        dossier_id="6523416"
+    )
+
+    session.add(new_legal_entity_record)
+    session.commit()
+
+def fake_account(session):
+    new_account = Account(counterparty_id=12345, counterparty_type='Broker', type_id=1, 
+            opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
+    session.add(new_account)
+    session.commit()

@@ -26,7 +26,7 @@ schema_market_data_system = 'market_data_system'
 
 # Defining the new entities
 
-class Retial(Base):
+class Retail(Base):
     __tablename__ = 'retail'
     __table_args__ = (
         CheckConstraint(

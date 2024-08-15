@@ -11,7 +11,6 @@ connection = None
 session = None
 
 load_dotenv()
-# probably we want to have a database and a schema per scenario we want to demo
 
 url = URL.create(
     drivername="postgresql",
@@ -21,6 +20,7 @@ url = URL.create(
     port=5432,
     database="postgres"
 )
+
 
 def init_database():
     engine = create_engine(url)
@@ -52,11 +52,17 @@ if __name__ == "__main__":
     fake_currency_table(session=session)
     fake_liquidity_pool_table(session=session, num_pools=NUMBER_OF_POOLS)
     
+    # old database
     fake_liquidity_pool_trans(session)
     fake_margin_account(session)
     fake_margin_account_trans(session)
     fake_option(session)
     fake_trade_log(session)
+
+    # new database
+    fake_retail(session)
+    fake_legal_entity(session)
+    fake_account(session)
 
     # Check if the users were written
     #for user in session.query(Users).order_by(User.id):
