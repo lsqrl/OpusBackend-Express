@@ -66,11 +66,11 @@ if __name__ == "__main__":
     NUMBER_OF_POOLS = 10
 
     from data_faking_example import *
+
+    # old database
     fake_user_table(session=session, num_rows=NUMBER_OF_USERS)
     fake_currency_table(session=session)
     fake_liquidity_pool_table(session=session, num_pools=NUMBER_OF_POOLS)
-    
-    # old database
     fake_liquidity_pool_trans(session)
     fake_margin_account(session)
     fake_margin_account_trans(session)
