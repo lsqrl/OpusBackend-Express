@@ -1,0 +1,26 @@
+# Ignore all .log files
+*.log
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled files
+*.class
+*.o
+*.so
+
+# Ignore node_modules directory (for Node.js projects)
+node_modules/
+
+# Ignore environment files (e.g., Python)
+.env
+.venv
