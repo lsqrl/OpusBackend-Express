@@ -281,6 +281,43 @@ class BankAccount(Base):
     __tablename__ = 'bank_accounts'
     __table_args__ = {'schema': schema_funding_sources}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    counterparty_id = Column(Integer, nullable=False) # reference depends on counterparty_type
+    counterparty_type = Column(String, nullable=False) # limited to counterparty tables
+    number = Column(BigInteger, nullable=False)
+    bank_name = Column(String(300), nullable=False)
+    bank_address = Column(String(300), nullable=False)
+    swift_bic_code = Column(String(50), nullable=False)
+    iban = Column(String(50), nullable=False)
+    onboarding_timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+
+    # Polymorphic relationship
+    @property
+    def entity(self):
+        if self.counterparty_type == 'Retail':
+            return self.session.query(Retail).filter_by(id=self.counterparty_id).first()
+        elif self.counterparty_type == 'Institutional':
+            return self.session.query(Institutional).filter_by(id=self.counterparty_id).first()
+
+    def __repr__(self):
+        return (f"<BankAccount(id={self.id}, counterparty_id={self.counterparty_id}, "
+                f"counterparty_type='{self.counterparty_type}', number={self.number}, "
+                f"bank_name='{self.bank_name}', bank_address='{self.bank_address}', "
+                f"swift_bic_code='{self.swift_bic_code}', iban='{self.iban}', "
+                f"onboarding_timestamp={self.onboarding_timestamp})>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'counterparty_id': self.counterparty_id,
+            'counterparty_type': self.counterparty_type,
+            'number': self.number,
+            'bank_name': self.bank_name,
+            'bank_address': self.bank_address,
+            'swift_bic_code': self.swift_bic_code,
+            'iban': self.iban,
+            'onboarding_timestamp': self.onboarding_timestamp.isoformat() if self.onboarding_timestamp else None
+        }
 
 class BankDeposit(Base):
     __tablename__ = 'bank_deposits'
