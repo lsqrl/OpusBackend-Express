@@ -151,6 +151,8 @@ class Currencies(Base):
 
     child_bd = relationship('BankDeposit',
                              back_populates='parent_c')
+    child_cd = relationship('CryptoDeposit',
+                             back_populates='parent_c')
 
     def __repr__(self):
         return f"<Currencies(id={self.id}, name='{self.name}', trad_fi={self.trad_fi})>"
@@ -256,6 +258,8 @@ class Wallet(Base):
         timezone.utc), nullable=False)
 
     parent_c = relationship('Chain', back_populates='child_w')
+    child_cd = relationship('CryptoDeposit',
+                             back_populates='parent_w')
     
     # Polymorphic relationship
     @property
@@ -368,6 +372,38 @@ class CryptoDeposit(Base):
     __tablename__ = 'crypto_deposits'
     __table_args__ = {'schema': schema_deposits}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    wallet_id = Column(Integer, ForeignKey('funding_sources.wallets.id'), nullable=False)
+    currency_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    usd_amount = Column(Float, nullable=False)
+    fee = Column(Float, nullable=False)
+    initiation_timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    confirmation_timestamp = Column(DateTime(timezone=True), nullable=True)
+    transaction_number = Column(String(100), nullable=False)
+    status = Column(String(50), nullable=False)
+
+    parent_w = relationship('Wallet', back_populates='child_cd')
+    parent_c = relationship('Currencies', back_populates='child_cd')
+
+    def __repr__(self):
+        return (f"<CryptoDeposit(id={self.id}, wallet_id={self.wallet_id}, "
+                f"currency_id={self.currency_id}, usd_amount={self.usd_amount}, fee={self.fee}, "
+                f"initiation_timestamp={self.initiation_timestamp}, confirmation_timestamp={self.confirmation_timestamp}, "
+                f"transaction_number='{self.transaction_number}', "
+                f"status='{self.status}')>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'wallet_id': self.wallet_id,
+            'currency_id': self.currency_id,
+            'usd_amount': self.usd_amount,
+            'fee': self.fee,
+            'initiation_timestamp': self.initiation_timestamp.isoformat() if self.initiation_timestamp else None,
+            'confirmation_timestamp': self.confirmation_timestamp.isoformat() if self.confirmation_timestamp else None,
+            'transaction_number': self.transaction_number,
+            'status': self.status
+        }
 
 class TradeType(Base):
     __tablename__ = 'trade_types'
