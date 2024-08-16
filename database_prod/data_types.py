@@ -149,6 +149,9 @@ class Currencies(Base):
     name = Column(String(20), nullable=False)
     trad_fi = Column(Boolean, default=True, nullable=False)
 
+    child_bd = relationship('BankDeposit',
+                             back_populates='parent_c')
+
     def __repr__(self):
         return f"<Currencies(id={self.id}, name='{self.name}', trad_fi={self.trad_fi})>"
 
@@ -290,6 +293,9 @@ class BankAccount(Base):
     iban = Column(String(50), nullable=False)
     onboarding_timestamp = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
+    
+    child_bd = relationship('BankDeposit',
+                             back_populates='parent_ba')
 
     # Polymorphic relationship
     @property
@@ -323,6 +329,40 @@ class BankDeposit(Base):
     __tablename__ = 'bank_deposits'
     __table_args__ = {'schema': schema_deposits}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    bank_account_id = Column(Integer, ForeignKey('funding_sources.bank_accounts.id'), nullable=False)
+    currency_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    amount = Column(Float, nullable=False)
+    fee = Column(Float, nullable=False)
+    initiation_timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    confirmation_timestamp = Column(DateTime(timezone=True), nullable=True)
+    transaction_number = Column(String(100), nullable=False)
+    receipt_id = Column(String(100), nullable=False)
+    status = Column(String(50), nullable=False)
+
+    parent_ba = relationship('BankAccount', back_populates='child_bd')
+    parent_c = relationship('Currencies', back_populates='child_bd')
+
+    def __repr__(self):
+        return (f"<BankDeposit(id={self.id}, bank_account_id={self.bank_account_id}, "
+                f"currency_id={self.currency_id}, amount={self.amount}, fee={self.fee}, "
+                f"initiation_timestamp={self.initiation_timestamp}, confirmation_timestamp={self.confirmation_timestamp}, "
+                f"transaction_number='{self.transaction_number}', receipt_id='{self.receipt_id}', "
+                f"status='{self.status}')>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'bank_account_id': self.bank_account_id,
+            'currency_id': self.currency_id,
+            'amount': self.amount,
+            'fee': self.fee,
+            'initiation_timestamp': self.initiation_timestamp.isoformat() if self.initiation_timestamp else None,
+            'confirmation_timestamp': self.confirmation_timestamp.isoformat() if self.confirmation_timestamp else None,
+            'transaction_number': self.transaction_number,
+            'receipt_id': self.receipt_id,
+            'status': self.status
+        }
 
 class CryptoDeposit(Base):
     __tablename__ = 'crypto_deposits'
