@@ -26,6 +26,7 @@ schema_market_data_system = 'market_data_system'
 
 # Defining the new entities
 
+
 class Retail(Base):
     __tablename__ = 'retail'
     __table_args__ = (
@@ -38,7 +39,8 @@ class Retail(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(300), nullable=False)
-    onboarding_datetime = Column(DateTime, nullable=False)
+    onboarding_datetime = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
     email = Column(String(254), nullable=False, unique=True)
     telephone_number = Column(String(100), nullable=False)
     address_of_residence = Column(String(300), nullable=False)
@@ -83,7 +85,8 @@ class Institutional(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     legal_entity_name = Column(String(500), nullable=False)
-    onboarding_datetime = Column(DateTime, nullable=False)
+    onboarding_datetime = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
     email = Column(String(254), nullable=False, unique=True)
     telephone_number = Column(String(100), nullable=False)
     legal_address = Column(String(300), nullable=False)
@@ -166,6 +169,9 @@ class Chain(Base):
     chain_id = Column(BigInteger, nullable=True) # Solana has no ID
     url = Column(String(500), nullable=False)
 
+    child_w = relationship('Wallet',
+                             back_populates='parent_c')
+
     def __repr__(self):
         return f"<Chain(id={self.id}, name='{self.name}', chain_id={self.chain_id}, url='{self.url}')>"
 
@@ -230,8 +236,46 @@ class Account(Base):
 
 class Wallet(Base):
     __tablename__ = 'wallets'
-    __table_args__ = {'schema': schema_funding_sources}
+    __table_args__ = (
+        CheckConstraint(
+            "counterparty_type IN ('Retail', 'Institutional')",
+            name='account_check'
+        ),
+        {'schema': schema_funding_sources}
+    )
+
     id = Column(Integer, primary_key=True, autoincrement=True)
+    counterparty_id = Column(Integer, nullable=False) # reference depends on counterparty_type
+    counterparty_type = Column(String, nullable=False) # limited to counterparty tables
+    address = Column(LargeBinary(20), nullable=False)
+    chain_id = Column(Integer, ForeignKey('account.chains.id'), nullable=False)
+    onboarding_timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+
+    parent_c = relationship('Chain', back_populates='child_w')
+    
+    # Polymorphic relationship
+    @property
+    def entity(self):
+        if self.counterparty_type == 'Retail':
+            return self.session.query(Retail).filter_by(id=self.counterparty_id).first()
+        elif self.counterparty_type == 'Institutional':
+            return self.session.query(Institutional).filter_by(id=self.counterparty_id).first()
+
+    def __repr__(self):
+        return (f"<Wallet(id={self.id}, counterparty_id={self.counterparty_id}, "
+                f"counterparty_type='{self.counterparty_type}', address={self.address.hex()}, "
+                f"chain_id={self.chain_id}, onboarding_timestamp={self.onboarding_timestamp})>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'counterparty_id': self.counterparty_id,
+            'counterparty_type': self.counterparty_type,
+            'address': self.address.hex(),
+            'chain_id': self.chain_id,
+            'onboarding_timestamp': self.onboarding_timestamp.isoformat() if self.onboarding_timestamp else None
+        }
 
 class BankAccount(Base):
     __tablename__ = 'bank_accounts'
