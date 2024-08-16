@@ -9,7 +9,7 @@ import numpy as np
 import random
 from itertools import islice
 from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
-    Institutional, Account, AccountType, Chain
+    Institutional, Account, AccountType, Chain, Instrument
 
 fake = Faker()
 
@@ -185,4 +185,20 @@ def fake_chains(session):
     for n, id, u in zip(CHAIN_NAMES, CHAIN_IDS, CHAIN_URLS):
         chain = Chain(name=n, chain_id=id, url=u)
         session.add(chain)
+        session.commit()
+
+def fake_instruments(session):
+    instruments = [
+        "Name",
+        "Funding",
+        "Loans",
+        "FX Spot",
+        "Crypto Spot",
+        "FX Options",
+        "Crypto Options",
+        "FX Forwards",
+        "Crypto Perpetuals"
+    ]
+    for i in instruments:
+        session.add(Instrument(name=i))
         session.commit()

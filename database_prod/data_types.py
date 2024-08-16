@@ -76,7 +76,6 @@ class Retail(Base):
             'dossier_id': self.dossier_id
         }
 
-
 class Institutional(Base):
     __tablename__ = 'institutional'
     __table_args__ = (
@@ -114,7 +113,6 @@ class Institutional(Base):
             'dossier_id': self.dossier_id
         }
 
-
 class AccountType(Base):
     __tablename__ = 'account_types'
     __table_args__ = (
@@ -140,7 +138,6 @@ class AccountType(Base):
             'name': self.name,
         }
 
-
 class Currencies(Base):
     __tablename__ = 'currencies'
     __table_args__ = {'schema': schema_account}
@@ -164,7 +161,6 @@ class Currencies(Base):
             'trad_fi': self.trad_fi,
         }
 
-
 class Chain(Base):
     __tablename__ = 'chains'
     __table_args__ = {'schema': schema_account}
@@ -187,7 +183,6 @@ class Chain(Base):
             'chain_id': self.chain_id,
             'url': self.url,
         }
-
 
 class Account(Base):
     __tablename__ = 'accounts'
@@ -405,13 +400,23 @@ class CryptoDeposit(Base):
             'status': self.status
         }
 
-class TradeType(Base):
-    __tablename__ = 'trade_types'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    
 class Instrument(Base):
     __tablename__ = 'instruments'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return f"<Instrument(id={self.id}, name='{self.name}')>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+
+class Trade(Base):
+    __tablename__ = 'trades'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
     
@@ -422,46 +427,6 @@ class Portfolio(Base):
 
 class TradeToPortfolio(Base):
     __tablename__ = 'trade_to_portfolio'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class FundingFromFiat(Base):
-    __tablename__ = 'funding_from_fiat'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class FundingFromCrypto(Base):
-    __tablename__ = 'funding_from_crypto'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class Loans(Base):
-    __tablename__ = 'loans'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class FXSpot(Base):
-    __tablename__ = 'fx_spot'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class CryptoSpot(Base):
-    __tablename__ = 'crypto_spot'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class CryptoPerpetual(Base):
-    __tablename__ = 'crypto_perpetual'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class FiatOptions(Base):
-    __tablename__ = 'fiat_options'
-    __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-class CryptoOptions(Base):
-    __tablename__ = 'crypto_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -528,6 +493,48 @@ for student in session.query(Student).all():
 
 """
 
+class FundingFromFiat(Base):
+    __tablename__ = 'funding_from_fiat'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FundingFromCrypto(Base):
+    __tablename__ = 'funding_from_crypto'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class Loans(Base):
+    __tablename__ = 'loans'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FXSpot(Base):
+    __tablename__ = 'fx_spot'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoSpot(Base):
+    __tablename__ = 'crypto_spot'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoPerpetual(Base):
+    __tablename__ = 'crypto_perpetual'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class FiatOptions(Base):
+    __tablename__ = 'fiat_options'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+class CryptoOptions(Base):
+    __tablename__ = 'crypto_options'
+    __table_args__ = {'schema': schema_trades}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+
+# OLD DATABASE
 
 class Users(Base):
     __tablename__ = 'users'
