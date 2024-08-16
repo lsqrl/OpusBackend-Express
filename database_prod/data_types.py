@@ -1,4 +1,4 @@
-from sqlalchemy import Column, CheckConstraint, UniqueConstraint, Integer, BigInteger, \
+from sqlalchemy import Table, Column, CheckConstraint, Integer, BigInteger, \
     LargeBinary, Float, String, Boolean, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
@@ -414,21 +414,46 @@ class Instrument(Base):
             'id': self.id,
             'name': self.name
         }
+    
+# junction table to associate one portfolio to many trades
+trades_to_portfolios = Table(
+    'trades_to_portfolios', Base.metadata,
+    Column('trade_id', Integer, ForeignKey('trades.trades.id'), primary_key=True),
+    Column('portfolio_id', Integer, ForeignKey('trades.portfolios.id'), primary_key=True),
+    schema=schema_trades  # Explicitly setting the schema to 'trades'
+)
 
 class Trade(Base):
     __tablename__ = 'trades'
     __table_args__ = {'schema': schema_trades}
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    
+    description = Column(String(50))
+
+    portfolios = relationship(
+        'Portfolio',
+        secondary=trades_to_portfolios,
+        back_populates='trades'
+    )
+
+    def __repr__(self):
+        return f"<Trade(id={self.id}, description='{self.description}')>"
+
 class Portfolio(Base):
     __tablename__ = 'portfolios'
     __table_args__ = {'schema': schema_trades}
-    id = Column(Integer, primary_key=True, autoincrement=True)
 
-class TradeToPortfolio(Base):
-    __tablename__ = 'trade_to_portfolio'
-    __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50))
+
+    trades = relationship(
+        'Trade',
+        secondary=trades_to_portfolios,
+        back_populates='portfolios'
+    )
+
+    def __repr__(self):
+        return f"<Portfolio(id={self.id}, name='{self.name}')>"
 
 """
 We will need a junction table to associate tradeIDs to portfolios
