@@ -9,7 +9,7 @@ import numpy as np
 import random
 from itertools import islice
 from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
-    Institutional, Account, AccountType, Chain, Instrument
+    Institutional, Account, AccountType, Chain, Instrument, Trade, Portfolio
 
 fake = Faker()
 
@@ -202,3 +202,14 @@ def fake_instruments(session):
     for i in instruments:
         session.add(Instrument(name=i))
         session.commit()
+
+def fake_trades_and_portfolio(session):
+    trade1 = Trade(description="Trade1")
+    trade2 = Trade(description="Trade2")
+    portfolio1 = Portfolio(name="Test")
+    portfolio1.trades.append(trade1)
+    portfolio1.trades.append(trade2)
+    session.add(trade1)
+    session.add(trade2)
+    session.add(portfolio1)
+    session.commit()

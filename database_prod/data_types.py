@@ -455,69 +455,6 @@ class Portfolio(Base):
     def __repr__(self):
         return f"<Portfolio(id={self.id}, name='{self.name}')>"
 
-"""
-We will need a junction table to associate tradeIDs to portfolios
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
-
-Base = declarative_base()
-
-# Define the junction table
-enrollment_table = Table(
-    'enrollments', Base.metadata,
-    Column('student_id', Integer, ForeignKey('students.id'), primary_key=True),
-    Column('course_id', Integer, ForeignKey('courses.id'), primary_key=True)
-)
-
-# Define the Student model
-class Student(Base):
-    __tablename__ = 'students'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-
-    # Define the relationship to the Course model via the junction table
-    courses = relationship('Course', secondary=enrollment_table, back_populates='students')
-
-# Define the Course model
-class Course(Base):
-    __tablename__ = 'courses'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-
-    # Define the relationship to the Student model via the junction table
-    students = relationship('Student', secondary=enrollment_table, back_populates='courses')
-
-    Session = sessionmaker(bind=engine)
-
-session = Session()
-
-# Create some students and courses
-student1 = Student(name='Alice')
-student2 = Student(name='Bob')
-
-course1 = Course(name='Math')
-course2 = Course(name='History')
-
-# Establish relationships
-student1.courses.append(course1)
-student1.courses.append(course2)
-student2.courses.append(course1)
-
-# Add and commit to the database
-session.add(student1)
-session.add(student2)
-session.commit()
-
-# Query the relationships
-for student in session.query(Student).all():
-    print(f"Student: {student.name}")
-    for course in student.courses:
-        print(f"Enrolled in: {course.name}")
-
-"""
-
 class FundingFromFiat(Base):
     __tablename__ = 'funding_from_fiat'
     __table_args__ = {'schema': schema_trades}
