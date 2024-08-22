@@ -485,6 +485,16 @@ class CryptoPerpetual(Base):
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
+"""
+so trades ID is in the Trades table
+so the flow is
+- define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
+- define a test portfolio "Test" or so, in the Portfolios table
+- add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
+- add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
+- finally, add the same Trade ID in the Portfolio table
+all this should be done via a single function
+"""
 class FiatOptions(Base):
     __tablename__ = 'fiat_options'
     __table_args__ = {'schema': schema_trades}
