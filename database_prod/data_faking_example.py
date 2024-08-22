@@ -190,7 +190,8 @@ def fake_chains(session):
 def fake_instruments(session):
     instruments = [
         "Name",
-        "Funding",
+        "Fiat Funding",
+        "Crypto Funding",
         "Loans",
         "FX Spot",
         "Crypto Spot",

@@ -296,6 +296,8 @@ class BankAccount(Base):
     
     child_bd = relationship('BankDeposit',
                              back_populates='parent_ba')
+    child_ff = relationship('FiatFunding',
+                             back_populates='parent_ba')
 
     # Polymorphic relationship
     @property
@@ -439,6 +441,8 @@ class Trade(Base):
     parent_i = relationship('Instrument', back_populates='child_t')
     child_fxs = relationship('FXSpot',
                              back_populates='parent_t')
+    child_ff = relationship('FiatFunding',
+                             back_populates='parent_t')    
 
     portfolios = relationship(
         'Portfolio',
@@ -472,13 +476,37 @@ class Portfolio(Base):
     def __repr__(self):
         return f"<Portfolio(id={self.id}, name='{self.name}')>"
 
-class FundingFromFiat(Base):
-    __tablename__ = 'funding_from_fiat'
+class FiatFunding(Base):
+    __tablename__ = 'fiat_funding'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)  # Assuming 'trade' table has a primary key 'id'
+    bank_account_id = Column(Integer, ForeignKey('funding_sources.bank_accounts.id'), nullable=False)  # Assuming 'bank_account' table has a primary key 'id'
+    amount = Column(Float)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    
+    parent_t = relationship('Trade',
+                             back_populates='child_ff')    
+    parent_ba = relationship('BankAccount',
+                             back_populates='child_ff')
 
-class FundingFromCrypto(Base):
-    __tablename__ = 'funding_from_crypto'
+    def __repr__(self):
+        return (f"<TradeData(id={self.id}, trade_id={self.trade_id}, "
+                f"bank_account_id={self.bank_account_id}, amount={self.amount}, "
+                f"timestamp={self.timestamp})>")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "trade_id": self.trade_id,
+            "bank_account_id": self.bank_account_id,
+            "amount": self.amount,
+            "timestamp": self.timestamp
+        }
+
+class CryptoFunding(Base):
+    __tablename__ = 'crypto_funding'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -553,8 +581,8 @@ so the flow is
 - finally, add the same Trade ID in the Portfolio table
 all this should be done via a single function
 """
-class FiatOptions(Base):
-    __tablename__ = 'fiat_options'
+class FXOptions(Base):
+    __tablename__ = 'fx_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
