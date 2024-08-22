@@ -206,6 +206,7 @@ class Account(Base):
     trade_enabled = Column(Boolean, nullable=False, default=True)
 
     parent_a = relationship('AccountType', back_populates='child_at')
+    child_fxs = relationship('FXSpot', back_populates='parent_a')
 
     # Polymorphic relationship
     @property
@@ -493,7 +494,7 @@ class FXSpot(Base):
     trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
     underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
     accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
-    bank_account_id = Column(Integer)
+    bank_account_id = Column(Integer, ForeignKey('account.accounts.id'), nullable=False)
     rate = Column(Float)
     notional = Column(Float)
     trade_date =  Column(DateTime, default=datetime.now(
@@ -507,7 +508,8 @@ class FXSpot(Base):
     parent_cu = relationship('Currencies',
                              foreign_keys=[underlying_id])
     parent_ca = relationship('Currencies',
-                             foreign_keys=[accounting_id])
+                             foreign_keys=[accounting_id])    
+    parent_a = relationship('Account', back_populates='child_fxs')
     
     def __repr__(self):
         return (f"<FXSpot(if={self.id}, trade_id={self.trade_id}, "
