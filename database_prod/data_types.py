@@ -436,6 +436,8 @@ class Trade(Base):
         timezone.utc), nullable=False)
 
     parent_i = relationship('Instrument', back_populates='child_t')
+    child_fxs = relationship('FXSpot',
+                             back_populates='parent_t')
 
     portfolios = relationship(
         'Portfolio',
@@ -488,9 +490,9 @@ class FXSpot(Base):
     __tablename__ = 'fx_spot'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    trade_id = Column(Integer)
-    underlying_id = Column(Integer)
-    accounting_id = Column(Integer)
+    trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
+    underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
     bank_account_id = Column(Integer)
     rate = Column(Float)
     notional = Column(Float)
@@ -498,6 +500,14 @@ class FXSpot(Base):
         timezone.utc), nullable=False)
     settlement_date =  Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)  # Assuming date as string, use DateTime if time component needed
+    
+    parent_t = relationship('Trade', 
+                             foreign_keys=[trade_id],
+                             back_populates='child_fxs')
+    parent_cu = relationship('Currencies',
+                             foreign_keys=[underlying_id])
+    parent_ca = relationship('Currencies',
+                             foreign_keys=[accounting_id])
     
     def __repr__(self):
         return (f"<FXSpot(if={self.id}, trade_id={self.trade_id}, "
