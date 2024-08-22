@@ -13,7 +13,7 @@ session = None
 
 load_dotenv()
 
-url = URL.create(
+url = URL.create(    
     drivername="postgresql",
     username=os.getenv("POSTGRES_USERNAME"),
     password=os.getenv("POSTGRES_PASSWORD"),
@@ -87,6 +87,7 @@ if __name__ == "__main__":
     fake_chains(session)
     fake_instruments(session)
     fake_trades_and_portfolio(session)
+    fake_trades(session)
 
     print_database_state()
     #session.close()     

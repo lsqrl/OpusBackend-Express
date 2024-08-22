@@ -406,6 +406,9 @@ class Instrument(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
 
+    child_t = relationship('Trade',
+                            back_populates='parent_i')
+
     def __repr__(self):
         return f"<Instrument(id={self.id}, name='{self.name}')>"
 
@@ -428,7 +431,11 @@ class Trade(Base):
     __table_args__ = {'schema': schema_trades}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    description = Column(String(50))
+    instrument_id = Column(Integer, ForeignKey('trades.instruments.id'), nullable=False)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+
+    parent_i = relationship('Instrument', back_populates='child_t')
 
     portfolios = relationship(
         'Portfolio',
@@ -437,7 +444,14 @@ class Trade(Base):
     )
 
     def __repr__(self):
-        return f"<Trade(id={self.id}, description='{self.description}')>"
+        return f"<Trade(id={self.id}, instrument_id='{self.instrument_id}, timestamp='{self.timestamp})')>"
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "instrument_id": self.instrument_id,
+            "timestamp": self.timestamp
+        }
 
 class Portfolio(Base):
     __tablename__ = 'portfolios'
@@ -474,6 +488,38 @@ class FXSpot(Base):
     __tablename__ = 'fx_spot'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    trade_id = Column(Integer)
+    underlying_id = Column(Integer)
+    accounting_id = Column(Integer)
+    bank_account_id = Column(Integer)
+    rate = Column(Float)
+    notional = Column(Float)
+    trade_date =  Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    settlement_date =  Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)  # Assuming date as string, use DateTime if time component needed
+    
+    def __repr__(self):
+        return (f"<FXSpot(if={self.id}, trade_id={self.trade_id}, "
+                f"underlying_id={self.underlying_id}, accounting_id={self.accounting_id}, "
+                f"bank_account_id={self.bank_account_id}, rate={self.rate}, "
+                f"notional={self.notional}, trade_date={self.trade_date}, "
+                f"settlement_date={self.settlement_date})>")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "trade_id": self.trade_id,
+            "underlying_id": self.underlying_id,
+            "accounting_id": self.accounting_id,
+            "bank_account_id": self.bank_account_id,
+            "rate": self.rate,
+            "notional": self.notional,
+            "trade_date": self.trade_date,
+            "settlement_date": self.settlement_date
+        }
+
+
 
 class CryptoSpot(Base):
     __tablename__ = 'crypto_spot'
