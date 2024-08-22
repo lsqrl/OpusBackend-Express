@@ -216,7 +216,7 @@ def fake_trades_and_portfolio(session):
 
 def fake_trades(session):
     # Instruments that are target for the demo
-    target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FX Option", "Funding", "FX Spot"])).all()
+    target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FX Option", "Fiat Funding", "FX Spot"])).all()
     for id in target_instrument_ids:
         trade = Trade(instrument_id=id[0])
         session.add(trade)
