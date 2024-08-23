@@ -190,12 +190,13 @@ def fake_chains(session):
 def fake_instruments(session):
     instruments = [
         "Name",
-        "Funding",
+        "Fiat Funding",
+        "Crypto Funding",
         "Loans",
         "FX Spot",
         "Crypto Spot",
-        "FX Options",
-        "Crypto Options",
+        "FX Option",
+        "Crypto Option",
         "FX Forwards",
         "Crypto Perpetuals"
     ]
@@ -204,12 +205,19 @@ def fake_instruments(session):
         session.commit()
 
 def fake_trades_and_portfolio(session):
-    trade1 = Trade(description="Trade1")
-    trade2 = Trade(description="Trade2")
-    portfolio1 = Portfolio(name="Test")
-    portfolio1.trades.append(trade1)
-    portfolio1.trades.append(trade2)
-    session.add(trade1)
-    session.add(trade2)
-    session.add(portfolio1)
+    # Demo: add all trades to Portfolio
+    target_trades = session.query(Trade).all()
+    portfolio = Portfolio(name="Test")
+    for trade in target_trades:
+        portfolio.trades.append(trade)
+    session.add(portfolio)
     session.commit()
+
+
+def fake_trades(session):
+    # Instruments that are target for the demo
+    target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FX Option", "Fiat Funding", "FX Spot"])).all()
+    for id in target_instrument_ids:
+        trade = Trade(instrument_id=id[0])
+        session.add(trade)
+        session.commit()

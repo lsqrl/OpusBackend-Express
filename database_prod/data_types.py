@@ -206,6 +206,7 @@ class Account(Base):
     trade_enabled = Column(Boolean, nullable=False, default=True)
 
     parent_a = relationship('AccountType', back_populates='child_at')
+    child_fxs = relationship('FXSpot', back_populates='parent_a')
 
     # Polymorphic relationship
     @property
@@ -294,6 +295,8 @@ class BankAccount(Base):
         timezone.utc), nullable=False)
     
     child_bd = relationship('BankDeposit',
+                             back_populates='parent_ba')
+    child_ff = relationship('FiatFunding',
                              back_populates='parent_ba')
 
     # Polymorphic relationship
@@ -406,6 +409,9 @@ class Instrument(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
 
+    child_t = relationship('Trade',
+                            back_populates='parent_i')
+
     def __repr__(self):
         return f"<Instrument(id={self.id}, name='{self.name}')>"
 
@@ -428,7 +434,15 @@ class Trade(Base):
     __table_args__ = {'schema': schema_trades}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    description = Column(String(50))
+    instrument_id = Column(Integer, ForeignKey('trades.instruments.id'), nullable=False)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+
+    parent_i = relationship('Instrument', back_populates='child_t')
+    child_fxs = relationship('FXSpot',
+                             back_populates='parent_t')
+    child_ff = relationship('FiatFunding',
+                             back_populates='parent_t')    
 
     portfolios = relationship(
         'Portfolio',
@@ -437,7 +451,14 @@ class Trade(Base):
     )
 
     def __repr__(self):
-        return f"<Trade(id={self.id}, description='{self.description}')>"
+        return f"<Trade(id={self.id}, instrument_id='{self.instrument_id}, timestamp='{self.timestamp})')>"
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "instrument_id": self.instrument_id,
+            "timestamp": self.timestamp
+        }
 
 class Portfolio(Base):
     __tablename__ = 'portfolios'
@@ -455,13 +476,37 @@ class Portfolio(Base):
     def __repr__(self):
         return f"<Portfolio(id={self.id}, name='{self.name}')>"
 
-class FundingFromFiat(Base):
-    __tablename__ = 'funding_from_fiat'
+class FiatFunding(Base):
+    __tablename__ = 'fiat_funding'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)  # Assuming 'trade' table has a primary key 'id'
+    bank_account_id = Column(Integer, ForeignKey('funding_sources.bank_accounts.id'), nullable=False)  # Assuming 'bank_account' table has a primary key 'id'
+    amount = Column(Float)
+    timestamp = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    
+    parent_t = relationship('Trade',
+                             back_populates='child_ff')    
+    parent_ba = relationship('BankAccount',
+                             back_populates='child_ff')
 
-class FundingFromCrypto(Base):
-    __tablename__ = 'funding_from_crypto'
+    def __repr__(self):
+        return (f"<TradeData(id={self.id}, trade_id={self.trade_id}, "
+                f"bank_account_id={self.bank_account_id}, amount={self.amount}, "
+                f"timestamp={self.timestamp})>")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "trade_id": self.trade_id,
+            "bank_account_id": self.bank_account_id,
+            "amount": self.amount,
+            "timestamp": self.timestamp
+        }
+
+class CryptoFunding(Base):
+    __tablename__ = 'crypto_funding'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -474,6 +519,47 @@ class FXSpot(Base):
     __tablename__ = 'fx_spot'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
+    underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    bank_account_id = Column(Integer, ForeignKey('account.accounts.id'), nullable=False)
+    rate = Column(Float)
+    notional = Column(Float)
+    trade_date =  Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    settlement_date =  Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)  # Assuming date as string, use DateTime if time component needed
+    
+    parent_t = relationship('Trade', 
+                             foreign_keys=[trade_id],
+                             back_populates='child_fxs')
+    parent_cu = relationship('Currencies',
+                             foreign_keys=[underlying_id])
+    parent_ca = relationship('Currencies',
+                             foreign_keys=[accounting_id])    
+    parent_a = relationship('Account', back_populates='child_fxs')
+    
+    def __repr__(self):
+        return (f"<FXSpot(if={self.id}, trade_id={self.trade_id}, "
+                f"underlying_id={self.underlying_id}, accounting_id={self.accounting_id}, "
+                f"bank_account_id={self.bank_account_id}, rate={self.rate}, "
+                f"notional={self.notional}, trade_date={self.trade_date}, "
+                f"settlement_date={self.settlement_date})>")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "trade_id": self.trade_id,
+            "underlying_id": self.underlying_id,
+            "accounting_id": self.accounting_id,
+            "bank_account_id": self.bank_account_id,
+            "rate": self.rate,
+            "notional": self.notional,
+            "trade_date": self.trade_date,
+            "settlement_date": self.settlement_date
+        }
+
+
 
 class CryptoSpot(Base):
     __tablename__ = 'crypto_spot'
@@ -485,10 +571,25 @@ class CryptoPerpetual(Base):
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-class FiatOptions(Base):
-    __tablename__ = 'fiat_options'
+"""
+so trades ID is in the Trades table
+so the flow is
+- define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
+- define a test portfolio "Test" or so, in the Portfolios table
+- add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
+- add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
+- finally, add the same Trade ID in the Portfolio table
+all this should be done via a single function
+"""
+class FXOptions(Base):
+    __tablename__ = 'fx_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    """
+    ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
+1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
+    """
+
 
 class CryptoOptions(Base):
     __tablename__ = 'crypto_options'
