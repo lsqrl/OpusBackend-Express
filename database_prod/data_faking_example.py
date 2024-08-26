@@ -207,16 +207,21 @@ def fake_instruments(session):
 def fake_trades_and_portfolio(session):
     # Demo: add all trades to Portfolio
     target_trades = session.query(Trade).all()
+    print(target_trades)
     portfolio = Portfolio(name="Test")
     for trade in target_trades:
         portfolio.trades.append(trade)
+        print(trade)
     session.add(portfolio)
     session.commit()
 
 
 def fake_trades(session):
     # Instruments that are target for the demo
+    ins = session.query(Instrument).all()
+    print('INS ', ins)
     target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FX Option", "Fiat Funding", "FX Spot"])).all()
+    print(target_instrument_ids)
     for id in target_instrument_ids:
         trade = Trade(instrument_id=id[0])
         session.add(trade)
@@ -239,3 +244,4 @@ so the flow is
 - finally, add the same Trade ID in the Portfolio table
 all this should be done via a single function
 """
+    pass
