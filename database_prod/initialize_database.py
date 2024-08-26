@@ -82,15 +82,21 @@ if __name__ == "__main__":
     fake_trade_log(session)
 
     # new database
-    fake_retail(session)
-    fake_legal_entity(session)
-    fake_account_type(session)
-    fake_account(session)
     fake_currencies_table(session)
     fake_chains(session)
+
+    fake_retail(session)
+    fake_legal_entity(session)
+
+    fake_account_type(session)
+    fake_account(session)
+    fake_bank_account(session)
+
     fake_instruments(session)
     fake_trades(session)
     fake_trades_and_portfolio(session)
+    
+    fake_fx_options(session)
 
     print_database_state()
     #session.close()     

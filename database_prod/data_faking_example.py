@@ -8,8 +8,7 @@ import pandas as pd
 import numpy as np
 import random
 from itertools import islice
-from data_types import Users, Currency, Currencies, LiquidityPool, Retail, \
-    Institutional, Account, AccountType, Chain, Instrument, Trade, Portfolio
+from data_types import *
 
 fake = Faker()
 
@@ -164,8 +163,14 @@ def fake_account_type(session):
         session.commit()
 
 def fake_account(session):
-    new_account = Account(counterparty_id=12345, counterparty_type='Institutional', type_id=1, 
-            opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
+    new_account = Account(counterparty_id=1, counterparty_type='Institutional', type_id=1, 
+                          opening_time='2024-08-14 00:00:00', active=True, closing_time='2999-12-31 00:00:00', trade_enabled=True)
+    session.add(new_account)
+    session.commit()
+
+def fake_bank_account(session):
+    new_account = BankAccount(counterparty_id=1, counterparty_type='Institutional', number=100, 
+                              bank_name='UBS', bank_address='Switzerland', swift_bic_code='WB542MC4', iban='SW173821784198')
     session.add(new_account)
     session.commit()
 
@@ -226,17 +231,19 @@ def fake_trades(session):
 
 def fake_fx_options(session):
     """
-    ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
-1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
+    so trades ID is in the Trades table
+    so the flow is
+    - define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
+    - define a test portfolio "Test" or so, in the Portfolios table
+    - add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
+    - add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
+    - finally, add the same Trade ID in the Portfolio table
+    all this should be done via a single function
     """
-    """
-so trades ID is in the Trades table
-so the flow is
-- define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
-- define a test portfolio "Test" or so, in the Portfolios table
-- add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
-- add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
-- finally, add the same Trade ID in the Portfolio table
-all this should be done via a single function
-"""
-    pass
+    trade_id = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FX Option",])).all()[0][0]
+    bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
+    option = FXOptions(id=1, trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
+              notional=1000000, strike=1.1) # trade_time, premium_settlement_date and expiry_time we can leave as the default
+    
+    session.add(option)
+    session.commit()
