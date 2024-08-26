@@ -206,7 +206,6 @@ class Account(Base):
     trade_enabled = Column(Boolean, nullable=False, default=True)
 
     parent_a = relationship('AccountType', back_populates='child_at')
-    child_fxs = relationship('FXSpot', back_populates='parent_a')
 
     # Polymorphic relationship
     @property
@@ -298,6 +297,8 @@ class BankAccount(Base):
                              back_populates='parent_ba')
     child_ff = relationship('FiatFunding',
                              back_populates='parent_ba')
+    child_fxs = relationship('FXSpot', back_populates='parent_a')
+    child_fxo = relationship('FXOptions', back_populates='parent_a')
 
     # Polymorphic relationship
     @property
@@ -441,6 +442,8 @@ class Trade(Base):
     parent_i = relationship('Instrument', back_populates='child_t')
     child_fxs = relationship('FXSpot',
                              back_populates='parent_t')
+    child_fxo = relationship('FXOptions',
+                             back_populates='parent_t')
     child_ff = relationship('FiatFunding',
                              back_populates='parent_t')    
 
@@ -522,12 +525,12 @@ class FXSpot(Base):
     trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
     underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
     accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
-    bank_account_id = Column(Integer, ForeignKey('account.accounts.id'), nullable=False)
+    bank_account_id = Column(Integer, ForeignKey('funding_sources.bank_accounts.id'), nullable=False)
     rate = Column(Float)
     notional = Column(Float)
-    trade_date =  Column(DateTime, default=datetime.now(
+    trade_date = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
-    settlement_date =  Column(DateTime, default=datetime.now(
+    settlement_date = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)  # Assuming date as string, use DateTime if time component needed
     
     parent_t = relationship('Trade', 
@@ -537,7 +540,7 @@ class FXSpot(Base):
                              foreign_keys=[underlying_id])
     parent_ca = relationship('Currencies',
                              foreign_keys=[accounting_id])    
-    parent_a = relationship('Account', back_populates='child_fxs')
+    parent_a = relationship('BankAccount', back_populates='child_fxs')
     
     def __repr__(self):
         return (f"<FXSpot(if={self.id}, trade_id={self.trade_id}, "
@@ -588,19 +591,51 @@ class FXOptions(Base):
     trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
     underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
     accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
-    bank_account_id = Column(Integer, ForeignKey('account.accounts.id'), nullable=False)
+    bank_account_id = Column(Integer, ForeignKey('funding_sources.bank_accounts.id'), nullable=False)
     premium_currency_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
     type = Column(String(4), nullable=False)
     direction = Column(String(4), nullable=False)
     notional = Column(Float, nullable=False)
     strike = Column(Float, nullable=False)
-    trade_time = Column(DateTime, ForeignKey('trades.trades.timestamp'), nullable=False)
-    premium_settlement_date = Column(DateTime, nullable=False)
-    expiry_time = Column(DateTime, nullable=False)
-    """
-    ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
-1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
-    """
+    # trade_time = Column(DateTime, ForeignKey('trades.trades.timestamp'), nullable=False) - will be extracted via join from trade table
+    premium_settlement_date = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    expiry_time = Column(DateTime, default=datetime.now(
+        timezone.utc), nullable=False)
+    
+    parent_t = relationship('Trade', back_populates='child_fxo')
+    parent_cu = relationship('Currencies',
+                             foreign_keys=[underlying_id])
+    parent_ca = relationship('Currencies',
+                             foreign_keys=[accounting_id])  
+    parent_cp = relationship('Currencies',
+                             foreign_keys=[premium_currency_id])  
+    parent_a = relationship('BankAccount', back_populates='child_fxo')
+
+    def __repr__(self):
+        return (f"<Option(id={self.id}, trade_id={self.trade_id}, "
+                f"underlying_id={self.underlying_id}, accounting_id={self.accounting_id}, "
+                f"bank_account_id={self.bank_account_id}, premium_currency_id={self.premium_currency_id}, "
+                f"type='{self.type}', direction='{self.direction}', "
+                f"notional={self.notional}, strike={self.strike}, "
+                f"premium_settlement_date={self.premium_settlement_date}, "
+                f"expiry_time={self.expiry_time})>")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'trade_id': self.trade_id,
+            'underlying_id': self.underlying_id,
+            'accounting_id': self.accounting_id,
+            'bank_account_id': self.bank_account_id,
+            'premium_currency_id': self.premium_currency_id,
+            'type': self.type,
+            'direction': self.direction,
+            'notional': self.notional,
+            'strike': self.strike,
+            'premium_settlement_date': self.premium_settlement_date.isoformat() if self.premium_settlement_date else None,
+            'expiry_time': self.expiry_time.isoformat() if self.expiry_time else None
+        }
 
 
 class CryptoOptions(Base):

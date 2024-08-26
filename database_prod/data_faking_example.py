@@ -221,3 +221,11 @@ def fake_trades(session):
         trade = Trade(instrument_id=id[0])
         session.add(trade)
         session.commit()
+
+
+
+def fake_fx_options(session):
+    """
+    ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
+1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
+    """
