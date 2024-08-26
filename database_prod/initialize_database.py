@@ -88,10 +88,9 @@ if __name__ == "__main__":
     fake_account(session)
     fake_currencies_table(session)
     fake_chains(session)
-    fake_trades(session)
     fake_instruments(session)
+    fake_trades(session)
     fake_trades_and_portfolio(session)
-    print(session, engine, connection)
 
     print_database_state()
     #session.close()     
