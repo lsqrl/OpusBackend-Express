@@ -229,3 +229,13 @@ def fake_fx_options(session):
     ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
 1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
     """
+    """
+so trades ID is in the Trades table
+so the flow is
+- define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
+- define a test portfolio "Test" or so, in the Portfolios table
+- add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
+- add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
+- finally, add the same Trade ID in the Portfolio table
+all this should be done via a single function
+"""

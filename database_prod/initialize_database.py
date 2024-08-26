@@ -14,7 +14,7 @@ session = None
 load_dotenv()
 
 url = URL.create(    
-    drivername="postgresql",
+    drivername="postgresql",      
     username=os.getenv("POSTGRES_USERNAME"),
     password=os.getenv("POSTGRES_PASSWORD"),
     host="localhost",
@@ -51,13 +51,16 @@ def print_database_state():
 
     # Iterate over each schema
     for schema in schemas:
-        # Get all tables in the schema
-        tables = inspector.get_table_names(schema=schema)
-        # Iterate over each table in the schema
-        for table_name in tables:
-            row_count = connection.execute(text(f'SELECT COUNT(*) FROM {schema}.{table_name}')).scalar()
-            
-            print(f"Rows: {row_count} in Table: {schema}.{table_name}")
+        if schema != 'information_schema':
+            # Get all tables in the schema
+            tables = inspector.get_table_names(schema=schema)
+            # Iterate over each table in the schema
+            for table_name in tables:
+                row_count = connection.execute(text(f'SELECT COUNT(*) FROM {schema}.{table_name}')).scalar()
+                
+                print(f"Rows: {row_count} in Table: {schema}.{table_name}")
+                rows = connection.execute(text(f'SELECT * FROM {schema}.{table_name}')).fetchall()
+                print(rows)
 
 
 if __name__ == "__main__":
