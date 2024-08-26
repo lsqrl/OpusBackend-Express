@@ -585,6 +585,18 @@ class FXOptions(Base):
     __tablename__ = 'fx_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
+    trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
+    underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    accounting_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    bank_account_id = Column(Integer, ForeignKey('account.accounts.id'), nullable=False)
+    premium_currency_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
+    type = Column(String(4), nullable=False)
+    direction = Column(String(4), nullable=False)
+    notional = Column(Float, nullable=False)
+    strike = Column(Float, nullable=False)
+    trade_time = Column(DateTime, ForeignKey('trades.trades.timestamp'), nullable=False)
+    premium_settlement_date = Column(DateTime, nullable=False)
+    expiry_time = Column(DateTime, nullable=False)
     """
     ID	Trade ID	Underlying ID	Accounting ID	Bank Account ID	Premium Currency ID	Type	Direction	Notional	Strike	Trade Time	Premium Settlement Date	Expiry Time
 1	31	3	1	43	1	Call	Sell	1,000,000	1.1	2024-07-23T14:30:00	2024-07-25T14:30:00	2024-08-23T14:30:00
