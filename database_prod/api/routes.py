@@ -12,18 +12,6 @@ def get_class_by_name(class_name):
 def check_connection():
     return jsonify({"message": "Connection successful!"}), 200
 
-
-@app.route('/getUsers', methods=['GET'])
-def get_users():
-    try:
-        session = app.session()        
-        users = session.query(Users).all()
-        users_list = [user.to_dict() for user in users] 
-
-        return jsonify(users_list) 
-    except Exception as e:
-        abort(400, description=f"An error occurred: {str(e)}")
-
 @app.route('/getClass/<class_name>', methods=['GET'])
 def get_class(class_name):
     try:
