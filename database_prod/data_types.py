@@ -478,6 +478,14 @@ class Portfolio(Base):
 
     def __repr__(self):
         return f"<Portfolio(id={self.id}, name='{self.name}')>"
+    
+    # TODO: add trades in the portfolio
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+    
 
 class FiatFunding(Base):
     __tablename__ = 'fiat_funding'
