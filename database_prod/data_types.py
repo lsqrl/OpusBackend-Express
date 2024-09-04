@@ -298,7 +298,7 @@ class BankAccount(Base):
     child_ff = relationship('FiatFunding',
                              back_populates='parent_ba')
     child_fxs = relationship('FXSpot', back_populates='parent_a')
-    child_fxo = relationship('FXOptions', back_populates='parent_a')
+    child_fxo = relationship('FXOption', back_populates='parent_a')
 
     # Polymorphic relationship
     @property
@@ -442,7 +442,7 @@ class Trade(Base):
     parent_i = relationship('Instrument', back_populates='child_t')
     child_fxs = relationship('FXSpot',
                              back_populates='parent_t')
-    child_fxo = relationship('FXOptions',
+    child_fxo = relationship('FXOption',
                              back_populates='parent_t')
     child_ff = relationship('FiatFunding',
                              back_populates='parent_t')    
@@ -582,7 +582,7 @@ class CryptoPerpetual(Base):
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-class FXOptions(Base):
+class FXOption(Base):
     __tablename__ = 'fx_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -636,7 +636,7 @@ class FXOptions(Base):
         }
 
 
-class CryptoOptions(Base):
+class CryptoOption(Base):
     __tablename__ = 'crypto_options'
     __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)

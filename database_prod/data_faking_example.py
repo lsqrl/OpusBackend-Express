@@ -195,15 +195,15 @@ def fake_chains(session):
 def fake_instruments(session):
     instruments = [
         "Name",
-        "Fiat Funding",
-        "Crypto Funding",
+        "FiatFunding",
+        "CryptoFunding",
         "Loans",
-        "FX Spot",
-        "Crypto Spot",
-        "FX Option",
-        "Crypto Option",
-        "FX Forwards",
-        "Crypto Perpetuals"
+        "FXSpot",
+        "CryptoSpot",
+        "FXOption",
+        "CryptoOption",
+        "FXForwards",
+        "CryptoPerpetuals"
     ]
     for i in instruments:
         session.add(Instrument(name=i))
@@ -218,10 +218,15 @@ def fake_trades_and_portfolio(session):
     session.add(portfolio)
     session.commit()
 
+def fake_portfolio(session):
+    # Create an FXOption portfolio
+    portfolio = Portfolio(name="FXOption")
+    session.add(portfolio)
+    session.commit()
 
 def fake_trades(session):
     # Instruments that are target for the demo
-    target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FX Option", "Fiat Funding", "FX Spot"])).all()
+    target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FXOption", "FiatFunding", "FXSpot"])).all()
     for id in target_instrument_ids:
         trade = Trade(instrument_id=id[0])
         session.add(trade)
@@ -233,16 +238,16 @@ def fake_fx_options(session):
     """
     so trades ID is in the Trades table
     so the flow is
-    - define the Instruments table, which must contains the FX Option, Funding and FX Spot at least
+    - define the Instruments table, which must contains the FXOption, Funding and FXSpot at least
     - define a test portfolio "Test" or so, in the Portfolios table
     - add a row in the Trades table with Instrument ID = the ID of Options in Instruments table
     - add a row in the Options table with Trade ID = the ID of the entry you just entered in the Trades table
     - finally, add the same Trade ID in the Portfolio table
     all this should be done via a single function
     """
-    trade_id = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FX Option",])).all()[0][0]
+    trade_id = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FXOption",])).all()[0][0]
     bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
-    option = FXOptions(id=1, trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
+    option = FXOption(id=1, trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
               notional=1000000, strike=1.1) # trade_time, premium_settlement_date and expiry_time we can leave as the default
     
     session.add(option)
