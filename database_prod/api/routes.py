@@ -17,6 +17,14 @@ def get_instrument_id_by_class_name(class_name, session):
     else:
         return None
 
+def get_portfolio_by_name(portfolio_name, session):
+    """Fetch PortfolioId from the Portfolios table based on class name."""
+    portfolio = session.query(Portfolio).filter_by(name=portfolio_name).first()
+    if portfolio:
+        return portfolio
+    else:
+        return None
+
 @app.route('/checkConnection', methods=['GET'])
 def check_connection():
     return jsonify({"message": "Connection successful!"}), 200
@@ -39,8 +47,8 @@ def get_class(class_name):
     except Exception as e:
         abort(400, description=f"An error occurred: {str(e)}")
 
-@app.route('/bookTrade/<class_name>', methods=['POST'])
-def book_trade(class_name):
+@app.route('/bookTrade/<class_name>/<portfolio_name>', methods=['POST'])
+def book_trade(class_name, portfolio_name):
     session = None
     try:
         # Get the model class by name (e.g., 'Options')
@@ -52,8 +60,10 @@ def book_trade(class_name):
         instrument_id = get_instrument_id_by_class_name(class_name, session)
         if instrument_id is None:
             abort(404, description=f"Instrument not found for class '{class_name}'.")
-
-        print("instrumentId", instrument_id)
+        
+        portfolio = get_portfolio_by_name(portfolio_name, session)
+        if portfolio is None:
+            abort(404, description=f"Portfolio of name '{portfolio_name}' not found.")
 
         # Get the data from the request body (except for 'tradeID')
         trade_data = request.get_json()
@@ -67,12 +77,15 @@ def book_trade(class_name):
 
         # Get the trade ID for the newly created trade
         trade_id = new_trade.id
-        print("trade_id", trade_id)
 
         # Add a new row to the specific class table (e.g., 'Options') with the provided data
         trade_data['trade_id'] = trade_id  # Add the tradeID to the data
         new_row = model_class(**trade_data)  # Use the model to create a new row instance
         session.add(new_row)
+        session.commit()
+
+        # Add a new row to the specific portfolio
+        portfolio.trades.append(new_trade)
         session.commit()
 
         return jsonify({"message": "Trade booked successfully!", "id": trade_id}), 201
