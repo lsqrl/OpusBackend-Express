@@ -1,5 +1,6 @@
 import requests
-from pricer.optionDelta import option_delta  # Importing option_delta function from optionDelta.py
+from pricer.optionDelta import option_delta
+from pricer.optionPrice import option_price
 from datetime import datetime, timezone
 
 def get_option_data():
@@ -84,3 +85,38 @@ def calculate_option_delta(volatility, rate, spot):
     
     # Step 4: Return the total sum of deltas
     return total_delta
+
+
+def calculate_option_price(volatility, rate, spot):
+    """
+    Calculate the sum of option prices by fetching data from the API and using the option_price function.
+    
+    Parameters:
+    volatility (float): Volatility of the underlying asset (annualized).
+    rate (float): Risk-free interest rate (annualized).
+    spot (float): Current spot price of the underlying asset.
+    
+    Returns:
+    float: Sum of prices of all options.
+    """
+    # Step 1: Get option data from the API
+    options = get_option_data()
+    
+    # Step 2: Initialize the total price sum
+    total_price = 0.0
+    
+    # Step 3: Loop through each option and calculate the price
+    for option_data in options:
+        strike = option_data['strike']
+        expiry = option_data['expiry']  # Now this is a float representing time to expiry in years
+        notional = option_data['notional']
+        option_type = option_data['option_type']
+        
+        # Calculate price using option_price function from optionPrice.py
+        price = option_price(strike, expiry, rate, volatility, notional, spot, option_type)
+        
+        # Add the price to the total
+        total_price += price
+    
+    # Step 4: Return the total sum of prices
+    return total_price

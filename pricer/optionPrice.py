@@ -22,29 +22,11 @@ def option_price(strike, expiry, rate, volatility, notional, spot, option_type):
     d1 = (math.log(spot / strike) + (rate + 0.5 * volatility ** 2) * expiry) / (volatility * math.sqrt(expiry))
     d2 = d1 - volatility * math.sqrt(expiry)
     
-    if option_type == 'call':
-        # Call option price
+    if option_type == 'CALL':
         price = (spot * norm.cdf(d1) - strike * math.exp(-rate * expiry) * norm.cdf(d2)) * notional
-    elif option_type == 'put':
-        # Put option price
+    elif option_type == 'PUT':
         price = (strike * math.exp(-rate * expiry) * norm.cdf(-d2) - spot * norm.cdf(-d1)) * notional
     else:
         raise ValueError("Invalid option type. Use 'call' or 'put'.")
     
     return price
-
-# # Example usage
-# strike_price = 100
-# expiry_in_years = 1
-# risk_free_rate = 0.05
-# volatility = 0.2
-# notional_amount = 1000
-# spot_price = 105
-
-# # Call option price
-# call_price = option_price(strike_price, expiry_in_years, risk_free_rate, volatility, notional_amount, spot_price, option_type='call')
-# print(f"Call option price: {call_price}")
-
-# # Put option price
-# put_price = option_price(strike_price, expiry_in_years, risk_free_rate, volatility, notional_amount, spot_price, option_type='put')
-# print(f"Put option price: {put_price}")

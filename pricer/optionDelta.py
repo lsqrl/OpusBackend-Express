@@ -19,8 +19,6 @@ def option_delta(strike, expiry, rate, volatility, notional, spot, option_type):
     """
     d1 = (math.log(spot / strike) + (rate + 0.5 * volatility ** 2) * expiry) / (volatility * math.sqrt(expiry))
     
-    print("spot", spot, "strike", strike, "expiry", expiry, "volatility", volatility, "d1", d1)
-
     if option_type == 'CALL':
         delta = norm.cdf(d1) * notional
     elif option_type == 'PUT':

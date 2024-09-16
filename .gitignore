@@ -3,3 +3,4 @@
 node_modules
 database/__pycache__
 database/api/__pycache__
+**/__pycache__
