@@ -17,33 +17,15 @@ def option_delta(strike, expiry, rate, volatility, notional, spot, option_type):
     Returns:
     float: Delta of the option.
     """
-    
-    # Calculate d1
     d1 = (math.log(spot / strike) + (rate + 0.5 * volatility ** 2) * expiry) / (volatility * math.sqrt(expiry))
     
-    if option_type == 'call':
-        # Call option delta
+    print("spot", spot, "strike", strike, "expiry", expiry, "volatility", volatility, "d1", d1)
+
+    if option_type == 'CALL':
         delta = norm.cdf(d1) * notional
-    elif option_type == 'put':
-        # Put option delta
+    elif option_type == 'PUT':
         delta = (norm.cdf(d1) - 1) * notional
     else:
         raise ValueError("Invalid option type. Use 'call' or 'put'.")
     
     return delta
-
-# # Example usage
-# strike_price = 100
-# expiry_in_years = 1
-# risk_free_rate = 0.05
-# volatility = 0.2
-# notional_amount = 1000
-# spot_price = 105
-
-# # Call option delta
-# call_delta = option_delta(strike_price, expiry_in_years, risk_free_rate, volatility, notional_amount, spot_price, option_type='call')
-# print(f"Call option delta: {call_delta}")
-
-# # Put option delta
-# put_delta = option_delta(strike_price, expiry_in_years, risk_free_rate, volatility, notional_amount, spot_price, option_type='put')
-# print(f"Put option delta: {put_delta}")

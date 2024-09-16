@@ -1,35 +1,59 @@
 import requests
-import pricer  # Assuming pricer.optionDelta is defined in a file called pricer.py
+from pricer.optionDelta import option_delta  # Importing option_delta function from optionDelta.py
+from datetime import datetime, timezone
 
 def get_option_data():
     """
     Fetch option data from the API and extract necessary fields for pricing.
     
     Returns:
-    dict: Dictionary containing the extracted fields.
+    list: List of dictionaries, each containing the extracted fields for an option.
     """
     url = 'http://localhost:5000/getClass/FXOption'
     response = requests.get(url)
     
     if response.status_code == 200:
-        # Assuming the API returns a JSON with the necessary fields
+        # Assuming the API returns a JSON array with the necessary fields for each option
         data = response.json()
         
-        # Extracting fields (example fields based on assumptions)
-        option_data = {
-            'strike': data.get('strike'),
-            'expiry': data.get('expiry'),
-            'notional': data.get('notional'),
-            'option_type': data.get('option_type')  # 'call' or 'put'
-        }
+        # Extracting fields for each option in the response
+        option_list = []
+        for option in data:
+            strike = option.get('strike')
+            expiry_time = option.get('expiry_time')  # This is a string in the format "YYYY-MM-DDTHH:MM:SS"
+            notional = option.get('notional')
+            option_type = option.get('type')  # 'CALL' or 'PUT'
+            
+            # Validate if all the required fields are present and not None
+            if None in (strike, expiry_time, notional, option_type):
+                continue  # Skip invalid option data
+            
+            # Convert expiry_time to a datetime object
+            expiry_datetime = datetime.strptime(expiry_time, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+            
+            # Calculate the time to expiry in years
+            current_time = datetime.now(timezone.utc)
+            time_to_expiry = (expiry_datetime - current_time).days / 365.0
+            
+            # Skip expired options
+            if time_to_expiry < 0:
+                continue
+            
+            option_data = {
+                'strike': strike,
+                'expiry': time_to_expiry,  # Time to expiry in years
+                'notional': notional,
+                'option_type': option_type  # 'CALL' or 'PUT'
+            }
+            option_list.append(option_data)
         
-        return option_data
+        return option_list
     else:
         raise Exception(f"API request failed with status code: {response.status_code}")
 
 def calculate_option_delta(volatility, rate, spot):
     """
-    Calculate the delta of an option by fetching data from the API and using the pricer.optionDelta function.
+    Calculate the sum of deltas of all options by fetching data from the API and using the option_delta function.
     
     Parameters:
     volatility (float): Volatility of the underlying asset (annualized).
@@ -37,30 +61,26 @@ def calculate_option_delta(volatility, rate, spot):
     spot (float): Current spot price of the underlying asset.
     
     Returns:
-    float: Delta of the option.
+    float: Sum of deltas of all options.
     """
     # Step 1: Get option data from the API
-    option_data = get_option_data()
+    options = get_option_data()
     
-    # Step 2: Extract the necessary fields
-    strike = option_data['strike']
-    expiry = option_data['expiry']
-    notional = option_data['notional']
-    option_type = option_data['option_type']
+    # Step 2: Initialize the total delta sum
+    total_delta = 0.0
     
-    # Step 3: Calculate delta using pricer.optionDelta
-    delta = pricer.optionDelta(strike, expiry, rate, volatility, notional, spot, option_type)
+    # Step 3: Loop through each option and calculate the delta
+    for option_data in options:
+        strike = option_data['strike']
+        expiry = option_data['expiry']  # Now this is a float representing time to expiry in years
+        notional = option_data['notional']
+        option_type = option_data['option_type']
+        
+        # Calculate delta using option_delta function from optionDelta.py
+        delta = option_delta(strike, expiry, rate, volatility, notional, spot, option_type)
+        
+        # Add the delta to the total
+        total_delta += delta
     
-    # Step 4: Return the delta
-    return delta
-
-# Example usage
-volatility = 0.2  # User input or external data
-rate = 0.05  # User input or external data
-spot = 105  # User input or external data
-
-try:
-    delta = calculate_option_delta(volatility, rate, spot)
-    print(f"Calculated delta: {delta}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+    # Step 4: Return the total sum of deltas
+    return total_delta
