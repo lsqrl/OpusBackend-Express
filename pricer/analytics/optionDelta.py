@@ -12,7 +12,7 @@ def option_delta(strike, expiry, rate, volatility, notional, spot, option_type):
     volatility (float): Volatility of the underlying asset (annualized).
     notional (float): Notional amount of the option.
     spot (float): Spot price of the underlying asset.
-    option_type (str): Type of the option ('call' or 'put'). Default is 'call'.
+    option_type (str): Type of the option ('CALL' or 'PUT'). Default is 'CALL'.
     
     Returns:
     float: Delta of the option.
@@ -24,6 +24,6 @@ def option_delta(strike, expiry, rate, volatility, notional, spot, option_type):
     elif option_type == 'PUT':
         delta = (norm.cdf(d1) - 1) * notional
     else:
-        raise ValueError("Invalid option type. Use 'call' or 'put'.")
+        raise ValueError("Invalid option type. Use 'CALL' or 'PUT'.")
     
     return delta
