@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Hardcoded threshold value
 DELTA_THRESHOLD = 1000000
 
-@app.route('/generatePostRequest', methods=['GET'])
+@app.route('/bookFXOption', methods=['GET'])
 def generate_post_request():
     try:
         # Step 1: Extract query parameters from the GET request
