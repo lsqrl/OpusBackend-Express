@@ -1,5 +1,8 @@
 import requests
 from pricer.analytics.optionDelta import option_delta
+from pricer.analytics.optionGamma import option_gamma
+from pricer.analytics.optionVega import option_vega
+from pricer.analytics.optionTheta import option_theta
 from pricer.analytics.optionPrice import option_price
 from datetime import datetime, timezone
 
@@ -52,9 +55,9 @@ def get_option_data():
     else:
         raise Exception(f"API request failed with status code: {response.status_code}")
 
-def calculate_option_delta(volatility, rate, spot):
+def calculate_option_greeks(volatility, rate, spot):
     """
-    Calculate the sum of deltas of all options by fetching data from the API and using the option_delta function.
+    Calculate the sum of greeks of all options by fetching data from the API and using the option_delta function.
     
     Parameters:
     volatility (float): Volatility of the underlying asset (annualized).
@@ -69,6 +72,9 @@ def calculate_option_delta(volatility, rate, spot):
     
     # Step 2: Initialize the total delta sum
     total_delta = 0.0
+    total_gamma = 0.0
+    total_theta = 0.0
+    total_vega = 0.0
     
     # Step 3: Loop through each option and calculate the delta
     for option_data in options:
@@ -79,12 +85,18 @@ def calculate_option_delta(volatility, rate, spot):
         
         # Calculate delta using option_delta function from optionDelta.py
         delta = option_delta(strike, expiry, rate, volatility, notional, spot, option_type)
+        gamma = option_gamma(strike, expiry, rate, volatility, notional, spot, option_type)
+        theta = option_theta(strike, expiry, rate, volatility, notional, spot, option_type)
+        vega = option_vega(strike, expiry, rate, volatility, notional, spot, option_type)
         
         # Add the delta to the total
         total_delta += delta
+        total_gamma += gamma
+        total_theta += theta
+        total_vega += vega
     
     # Step 4: Return the total sum of deltas
-    return total_delta
+    return total_delta, total_gamma, total_theta, total_vega
 
 
 def calculate_option_price(volatility, rate, spot):
