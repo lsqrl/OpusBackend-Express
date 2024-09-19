@@ -4,6 +4,7 @@ from pricer.analytics.optionDelta import option_delta  # Assuming optionDelta is
 from datetime import datetime, timezone
 from pricer.analytics.optionPrice import option_price
 from pricer.analytics.optionDelta import option_delta
+from pricer.analytics.optionVega import option_vega
 
 app = Flask(__name__)
 
@@ -50,30 +51,33 @@ def display_adj_price():
         # Calculate the time to expiry in years
         time_to_expiry = (expiry_datetime - current_time).days / 365.0
         
-        # Step 1: Calculate option price p1
         p1 = option_price(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
 
-        # Step 2: Calculate option delta d1
         d1 = option_delta(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
 
-        response = requests.get('http://localhost:5001/calculateDelta')
+        v1 = option_vega(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
+
+        response = requests.get('http://localhost:5001/calculateGreeks')
         if response.status_code == 200:
             D = response.json().get('delta')
+            V = response.json().get('vega')
         else:
-            return jsonify({"error": "Could not fetch portfolio delta"}), 500
+            return jsonify({"error": "Could not fetch portfolio greeks"}), 500
         
         # Step 4: Default bid and ask calculations
         default_bid = p1 * 0.95  # p1 - 5%
         default_ask = p1 * 1.05  # p1 + 5%
 
         # Step 5: Calculate final bid and ask
-        final_bid = default_bid * (1 - d1 / D)
-        final_ask = default_ask * (1 + d1 / D)
+        final_bid = default_bid * (1 - d1 / D) * (1 - v1 / V)
+        final_ask = default_ask * (1 + d1 / D) * (1 - v1 / V)
 
         # Return the final bid and ask as JSON
         return jsonify({
             "option_delta": d1,
             "portfolio_delta": D,
+            "option_vega": v1,
+            "portfolio_vega": V,
             "fair_price": p1,
             "bid": final_bid,
             "ask": final_ask
