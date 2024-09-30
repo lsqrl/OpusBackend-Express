@@ -9,6 +9,40 @@ import os
 import sys
 from datetime import datetime
 
+import streamlit as st
+import psycopg2
+import pandas as pd
+
+
+# Function to connect to PostgreSQL and retrieve data
+def get_data():
+    # Replace the following with your actual database connection info
+    conn = psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="postgres",
+        user="cece", #os.getenv("POSTGRES_USERNAME"),
+        password="holland2023"#os.getenv("POSTGRES_PASSWORD")
+    )
+    
+    # Query the PostgreSQL table
+    query = """SELECT t.timestamp as timestamp, p.name as portfolio_name, i.name as instrument_name FROM trades.portfolios p
+    JOIN trades.trades_to_portfolios ttp
+    ON ttp.portfolio_id = p.id
+    JOIN trades.trades t
+    ON ttp.trade_id = t.id
+    JOIN trades.instruments i
+    ON i.id = t.instrument_id"""
+    
+    # Use pandas to read the data into a DataFrame
+    df = pd.read_sql(query, conn)
+    
+    # Close the connection
+    conn.close()
+    
+    return df
+
+
 #######################
 # Page configuration
 st.set_page_config(
@@ -54,10 +88,18 @@ with st.sidebar:
         st.page_link("https://opusdigital.io/#", label="Homepage", icon="🏠")
         st.page_link("https://opusdigital.io/team/", label="Team", icon="👨‍👨‍👦‍👦")
         st.page_link("https://opusdigital.io/wp-content/uploads/2024/09/OpusDigital-Marketing-Presentation.pdf", label="Pitchdeck", icon="🧑‍🏫")
-        st.page_link("https://opusdigital.io/contact-us/", label="Filecoin", icon="📧")
+        st.page_link("https://opusdigital.io/contact-us/", label="Contact us", icon="📧")
 
 # URL of the rainbowkit deployment to embed
 website_url = "http://localhost:3000"  # Replace with the URL of the website you want to embed
+
+st.title("PostgreSQL Table Viewer")
+
+# Retrieve data from PostgreSQL
+df = get_data()
+
+# Display the dataframe in Streamlit
+st.dataframe(df)
 
 with st.expander('Connect your wallet', expanded=True):
     # Embed the website using an iframe
