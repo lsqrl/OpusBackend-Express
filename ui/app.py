@@ -21,8 +21,8 @@ def get_data():
         host="localhost",
         port=5432,
         database="postgres",
-        user="cece", #os.getenv("POSTGRES_USERNAME"),
-        password="holland2023"#os.getenv("POSTGRES_PASSWORD")
+        user=os.getenv("POSTGRES_USERNAME"),
+        password=os.getenv("POSTGRES_PASSWORD")
     )
     
     # Query the PostgreSQL table
