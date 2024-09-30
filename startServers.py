@@ -5,7 +5,8 @@ def start_servers():
         "python -m database_prod.api.app",
         "python -m pricer.api.app",
         "python -m arm.api.app",
-        "python -m imm.api.app"
+        "python -m imm.api.app",
+        "streamlit run ui.app" # will become available on port 8051
     ]
 
     processes = []
