@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 def start_servers():
     servers = [
@@ -6,14 +7,16 @@ def start_servers():
         "python -m pricer.api.app",
         "python -m arm.api.app",
         "python -m imm.api.app",
-        "streamlit run ui.app" # will become available on port 8051
     ]
 
     processes = []
-
+    
     for server in servers:
         process = subprocess.Popen(server, shell=True)
         processes.append(process)
+
+    # for UI
+    processes.append(subprocess.run(["streamlit", "run", os.path.join("ui", "app.py")]))
 
     for process in processes:
         process.wait()

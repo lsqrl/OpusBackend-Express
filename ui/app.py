@@ -75,7 +75,7 @@ def sidebar_bg(side_bg):
       """,
       unsafe_allow_html=True,
       )
-side_bg = 'background.png'
+side_bg = os.path.join("ui", "background.png")
 sidebar_bg(side_bg)
 
 
@@ -93,7 +93,7 @@ with st.sidebar:
 # URL of the rainbowkit deployment to embed
 website_url = "http://localhost:3000"  # Replace with the URL of the website you want to embed
 
-st.title("PostgreSQL Table Viewer")
+st.title("Portfolio management")
 
 # Retrieve data from PostgreSQL
 df = get_data()
