@@ -10,21 +10,24 @@ import sys
 from datetime import datetime
 
 import streamlit as st
-import psycopg2
 import pandas as pd
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import URL
+from sqlalchemy.orm import sessionmaker
 
+url = URL.create(    
+    drivername="postgresql",      
+    username=os.getenv("POSTGRES_USERNAME"),
+    password=os.getenv("POSTGRES_PASSWORD"),
+    host="localhost",
+    port=5432,
+    database="postgres"
+)
+engine = create_engine(url)
+connection = engine.connect()
 
 # Function to connect to PostgreSQL and retrieve data
 def get_data():
-    # Replace the following with your actual database connection info
-    conn = psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="postgres",
-        user=os.getenv("POSTGRES_USERNAME"),
-        password=os.getenv("POSTGRES_PASSWORD")
-    )
-    
     # Query the PostgreSQL table
     query = """SELECT t.timestamp as timestamp, p.name as portfolio_name, i.name as instrument_name FROM trades.portfolios p
     JOIN trades.trades_to_portfolios ttp
@@ -33,12 +36,11 @@ def get_data():
     ON ttp.trade_id = t.id
     JOIN trades.instruments i
     ON i.id = t.instrument_id"""
+    query_get_portfolios = text(query)
     
     # Use pandas to read the data into a DataFrame
-    df = pd.read_sql(query, conn)
-    
-    # Close the connection
-    conn.close()
+    # Now you can use the engine with pandas
+    df = connection.execute(query_get_portfolios)
     
     return df
 
