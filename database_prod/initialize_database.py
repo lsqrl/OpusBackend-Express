@@ -96,10 +96,10 @@ if __name__ == "__main__":
 
     fake_portfolio(session)
     # we better start with a clean database
-    # fake_trades(session)
-    # fake_trades_and_portfolio(session)
+    fake_trades(session)
+    fake_trades_and_portfolio(session)
     
-    # fake_fx_options(session)
+    fake_fx_options(session)
 
     print_database_state()
     #session.close()     

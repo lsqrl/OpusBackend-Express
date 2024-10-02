@@ -228,9 +228,10 @@ def fake_trades(session):
     # Instruments that are target for the demo
     target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FXOption", "FiatFunding", "FXSpot"])).all()
     for id in target_instrument_ids:
-        trade = Trade(instrument_id=id[0])
-        session.add(trade)
-        session.commit()
+        for i in range(0,random.randint(3,3)+1):
+            trade = Trade(instrument_id=id[0])
+            session.add(trade)
+            session.commit()
 
 
 

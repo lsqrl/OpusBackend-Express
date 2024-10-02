@@ -3,50 +3,13 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-import random
 import subprocess
 import os
-import sys
-from datetime import datetime
 
 import streamlit as st
 import pandas as pd
-from sqlalchemy import create_engine, text
-from sqlalchemy.engine import URL
-from sqlalchemy.orm import sessionmaker
+from db import *
 
-url = URL.create(    
-    drivername="postgresql",      
-    username=os.getenv("POSTGRES_USERNAME"),
-    password=os.getenv("POSTGRES_PASSWORD"),
-    host="localhost",
-    port=5432,
-    database="postgres"
-)
-engine = create_engine(url)
-connection = engine.connect()
-
-# Function to connect to PostgreSQL and retrieve data
-def get_data():
-    # Query the PostgreSQL table
-    query = """SELECT t.timestamp as timestamp, p.name as portfolio_name, i.name as instrument_name FROM trades.portfolios p
-    JOIN trades.trades_to_portfolios ttp
-    ON ttp.portfolio_id = p.id
-    JOIN trades.trades t
-    ON ttp.trade_id = t.id
-    JOIN trades.instruments i
-    ON i.id = t.instrument_id"""
-    query_get_portfolios = text(query)
-    
-    # Use pandas to read the data into a DataFrame
-    # Now you can use the engine with pandas
-    df = connection.execute(query_get_portfolios)
-    
-    return df
-
-
-#######################
-# Page configuration
 st.set_page_config(
     page_title="Opus digital mission control",
     page_icon="🌍",
@@ -54,12 +17,6 @@ st.set_page_config(
     initial_sidebar_state="expanded")
 
 alt.themes.enable("dark")
-
-path = 'history.csv'
-citations = []
-file_size = 0
-# run build lake at startup
-result = subprocess.call(["lake", "build"])
         
 
 import base64
@@ -92,90 +49,19 @@ with st.sidebar:
         st.page_link("https://opusdigital.io/wp-content/uploads/2024/09/OpusDigital-Marketing-Presentation.pdf", label="Pitchdeck", icon="🧑‍🏫")
         st.page_link("https://opusdigital.io/contact-us/", label="Contact us", icon="📧")
 
+with st.sidebar:
+    st.title('Pick portfolio you want to view')
+    option = st.selectbox(
+        'Choose a portfolio:',
+        [el[0] for el in get_portfolio_list().all()]
+    )
 # URL of the rainbowkit deployment to embed
 website_url = "http://localhost:3000"  # Replace with the URL of the website you want to embed
 
 st.title("Portfolio management")
 
 # Retrieve data from PostgreSQL
-df = get_data()
+df = get_portfolio_details(option)
 
 # Display the dataframe in Streamlit
 st.dataframe(df)
-
-with st.expander('Connect your wallet', expanded=True):
-    # Embed the website using an iframe
-    st.components.v1.iframe(website_url, width=800, height=500)#, scrolling=True)
-# wallet_address = st.text_input("Copy-paste the author's address:")
-
-uploaded_files = st.file_uploader("Choose a .lean file", accept_multiple_files=True)
-for uploaded_file in uploaded_files:
-    bytes_data = uploaded_file.read()
-    file_size = sys.getsizeof(bytes_data)
-    file_name = uploaded_file.name
-    st.write("Reviewing: ", uploaded_file.name + "...")
-    st.markdown("<div style=\"border: 2px solid #4CAF50; padding: 10px; border-radius: 5px;\"><p style=\"color:green;\">" + bytes_data.decode("utf-8").replace('\n', '<br>') + "</p></div>", unsafe_allow_html=True)
-    with open(os.path.join("Leanproject", file_name), "wb") as f:
-        f.write(bytes_data)
-    # add a new line for the new file
-    with open('Leanproject.lean', 'r') as f:
-        last_line = f.readlines()[-1]
-    with open('Leanproject.lean', 'a') as file:
-        file.write(str(last_line).partition(".")[0] + "." + file_name.partition(".")[0] + "\n")
-    #result = subprocess.call(["lean", "--run", "my_file.lean"])
-    result = subprocess.call(["lake", "build"])
-    if result:
-        st.markdown("<p style=\"color:red;\">⛔ Review failed</p>", unsafe_allow_html=True)
-        os.remove(os.path.join("Leanproject", file_name))
-        # File was faulty so remove it from the list to not break future builds
-        with open('Leanproject.lean', 'r') as f:
-            all_but_last_line = f.readlines()[:-1]
-        with open('Leanproject.lean', 'w') as f:
-            f.writelines(all_but_last_line)
-    else:
-        st.markdown("<p style=\"color:green;\">🏆 Review succeeded</p>", unsafe_allow_html=True)
-        st.markdown("<p style=\"color:green;\">🌸 Your article has been published with id 12, citing articles with id 1 and 3</p>", unsafe_allow_html=True)
-        wallet_address = "0x2F983dbe1c1ebeAd744eE6211F5CCF84E76A98D3"
-        # st.markdown("<p style=\"color:green;\">🌸 Your article has been published with id 11, citing articles with id 10</p>", unsafe_allow_html=True)
-        # wallet_address = "0x2F983dbe1c1ebeAd744eE6211F5CCF84E76A98D3"
-
-        st.write("Citations: ", str(bytes_data).count('Leanproject'))
-        citations = list(map(str, random.sample(range(400, 9000), str(bytes_data).count('Leanproject')))) # should have as many elements as there are Leanproject imports
-        result = subprocess.call(["node", os.path.join("scripts", "publish.js"), "--author", wallet_address, "--citations", "1", "3"])
-        result = subprocess.call(["node", "uploadFile.js", "--path", os.path.join("Leanproject", file_name)])
-        # result = subprocess.call(["node", os.path.join("scripts", "publish.js"), "--author", wallet_address, "--citations", "10"])
-        #st.write("I plan to execute:")
-        #st.write(" ".join(["node", "os.path.join(\"scripts\", \"publish.js\")", "--author", wallet_address, "--citations", citations]))
-        compiles = True
-
-def publish_history():
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    header = ["Timestamp", "WalletAddress", "FileSize [Byte]"]
-    df = pd.DataFrame(data = [(dt_string, wallet_address, file_size)], columns = header)
-    if not os.path.isfile(path):
-        df.to_csv(path, columns = header)
-    else:
-        df.to_csv(path, mode='a', header=False)
-    #st.write(pd.read_csv(path))
-    #os.environ["LIGTHOUSE_API_KEY"]=TODO
-    result = subprocess.call(["node", "uploadFile.js", "--path", os.path.join("Leanproject", file_name)])
-    #st.write("Uploading ", os.path.join("Leanproject", file_name))
-    #st.write(result)
-    article_id = "1"
-    # result = subprocess.call(["node", os.path.join("scripts", "activateArticle.js"), "--articleId", str(article_id)])
-    #st.write("I plan to execute:")
-    #st.write(" ".join(["node", "os.path.join(\"scripts\", \"activateArticle.js\")", "--articleId", "str(article_id)"]))
-    compiles = False
-    
-if compiles:
-    # if the file compiles we would like to know what is the price for publishing it and also
-    # who to reward for the citations
-    
-    # we need to mint an NFT in order to retrieve the PoDSIs from the network
-    # so we will have the address of the authors and list of PoDSIs to award them
-    publishing_cost = 25
-    # publishing_cost = 15
-    st.write("Esimated cost of publishing: " + str(publishing_cost) + " SKR")
-    # st.button("Publish", on_click=publish_history)
-
