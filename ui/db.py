@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
+import os
 
 url = URL.create(    
     drivername="postgresql",      
@@ -28,5 +29,10 @@ def get_portfolio_details(name):
 
 def get_portfolio_list():
     query = """SELECT name from trades.portfolios"""
+    df = connection.execute(text(query)) 
+    return df
+
+def get_trade_type():
+    query = """SELECT name from trades.instruments"""
     df = connection.execute(text(query)) 
     return df

@@ -10,7 +10,6 @@ def start_servers():
     ]
 
     processes = []
-    
     for server in servers:
         process = subprocess.Popen(server, shell=True)
         processes.append(process)
