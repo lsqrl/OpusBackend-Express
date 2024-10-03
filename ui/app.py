@@ -5,6 +5,7 @@ import pandas as pd
 import altair as alt
 import subprocess
 import os
+from PIL import Image  # Import Pillow for image handling
 
 import streamlit as st
 import pandas as pd
@@ -80,7 +81,7 @@ if st.button("Book trade"):
         # Add form elements
         option = st.selectbox(
             'Trade type:',
-            [el[0] for el in sorted(get_trade_type().all()[1:])],
+            [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
             
         )
         age = st.number_input("Age", min_value=0)
@@ -101,7 +102,7 @@ import streamlit as st
 st.title("Streamlit developer helper")
 
 # Create tabs
-tabs = st.tabs(["Service API", "Entity Relationship Diagram", "Other"])
+tabs = st.tabs(["Service API", "Entity Relationship Diagram", "UI Design"])
 with tabs[0]:
     col1, col2, col3, col4 = st.columns(4)
 
@@ -134,10 +135,27 @@ with tabs[1]:
     st.write("Example of goal visuals: https://schemascope.dcc.sib.swiss/")
     #st.line_chart([1, 2, 3, 4, 5])
     #get_erd_graph(st)
-    st.image(os.path.join('ui', 'od_erd.png'), use_column_width=True)
+    image_path = os.path.join('ui', 'od_erd.png')  # Replace with your image path or URL
+    image = Image.open(image_path)
+    st.image(image)
 
 
 
 with tabs[2]:
     st.header("Random Quote")
     st.text("Our deepest fear is not that we are inadequate. Our deepest fear is that we are powerful beyond measure")
+    # Embed Excalidraw using an iframe
+    excalidraw_room_url = "https://excalidraw.com/#room=1da649cb038c3dc89a65,kRBSasixyV172S99-WKR9Q"
+    
+    iframe_code = f"""
+    <iframe 
+        src="{excalidraw_room_url}",
+        width="100%" 
+        height="600px" 
+        style="border: none;">
+    </iframe>
+    """
+    # Display the iframe in the Streamlit app
+    st.markdown(f"{excalidraw_room_url}")
+    #st.markdown(iframe_code, unsafe_allow_html=True)
+    st.image(os.path.join('ui', 'od_des.png'))
