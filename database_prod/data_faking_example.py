@@ -228,14 +228,33 @@ def fake_trades(session):
     # Instruments that are target for the demo
     target_instrument_ids = session.query(Instrument.id).filter(Instrument.name.in_(["FXOption", "FiatFunding", "FXSpot"])).all()
     for id in target_instrument_ids:
-        for i in range(0,random.randint(3,3)+1):
+        for i in range(0,random.randint(1,10)+2):
             trade = Trade(instrument_id=id[0])
             session.add(trade)
             session.commit()
 
+def fake_fx_spot(session):
+    trade_ids = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FXSpot",])).all()
+    for el in trade_ids:
+        trade_id = el[0]
+        bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
+        option = FXSpot(trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, 
+                        rate=random.uniform(1.1, 1.9), notional=random.uniform(1200, 34588))
+        
+        session.add(option)
+        session.commit()
 
 
-def fake_fx_options(session):
+def fake_fiat_funding(session):
+    trade_ids = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FiatFunding",])).all()
+    for el in trade_ids:
+        trade_id = el[0]
+        bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
+        option = FiatFunding(trade_id=trade_id, bank_account_id=bank_account_id, amount=random.uniform(10000, 356000))
+        session.add(option)
+        session.commit()
+
+def fake_fx_option(session):
     """
     so trades ID is in the Trades table
     so the flow is
@@ -246,10 +265,12 @@ def fake_fx_options(session):
     - finally, add the same Trade ID in the Portfolio table
     all this should be done via a single function
     """
-    trade_id = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FXOption",])).all()[0][0]
-    bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
-    option = FXOption(id=1, trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
-              notional=1000000, strike=1.1) # trade_time, premium_settlement_date and expiry_time we can leave as the default
-    
-    session.add(option)
-    session.commit()
+    trade_ids = session.query(Trade.id).join(Instrument).filter(Instrument.name.in_(["FXOption",])).all()
+    for el in trade_ids:
+        trade_id = el[0]
+        bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
+        option = FXOption(trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
+                notional=1000000, strike=1.1) # trade_time, premium_settlement_date and expiry_time we can leave as the default
+        
+        session.add(option)
+        session.commit()

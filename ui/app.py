@@ -73,6 +73,17 @@ df = get_portfolio_details(option)
 
 # Display the dataframe in Streamlit
 st.dataframe(df)
+#print(df.all())
+#df = df.all()
+#st.text(type(df))
+#st.text(df)
+#trade_types = df['instrument_name'].unique()
+
+#columns = st.columns(len(trade_types))
+#for i in range(len(columns)):
+    # Add content to each column
+#    with columns[i]:
+#        st.header(trade_types[i])
 
 
 # Button to open the form

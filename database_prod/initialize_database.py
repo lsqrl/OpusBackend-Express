@@ -99,7 +99,9 @@ if __name__ == "__main__":
     fake_trades(session)
     fake_trades_and_portfolio(session)
     
-    fake_fx_options(session)
+    fake_fx_option(session)
+    fake_fx_spot(session)
+    fake_fiat_funding(session)
 
     print_database_state()
     #session.close()     
