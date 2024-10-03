@@ -11,6 +11,7 @@ import streamlit as st
 import pandas as pd
 from db import *
 from service import *
+from erd import *
 
 st.set_page_config(
     page_title="Opus digital mission control",
@@ -159,3 +160,4 @@ with tabs[2]:
     st.markdown(f"{excalidraw_room_url}")
     #st.markdown(iframe_code, unsafe_allow_html=True)
     st.image(os.path.join('ui', 'od_des.png'))
+    #get_erd(st)

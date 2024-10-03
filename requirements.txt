@@ -1,0 +1,15 @@
+altair==4.0
+bs4==0.0.2
+#erdantic==1.0.5
+Faker==25.9.1
+Flask==3.0.3
+#graphviz==0.20.3
+pandas==2.2.2
+polars==0.20.31
+psycopg2==2.9.9
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+requests==2.32.3
+scipy==1.14.1
+sqlalchemy==2.0.31
+streamlit==1.39.0
