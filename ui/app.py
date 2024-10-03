@@ -59,10 +59,10 @@ with st.sidebar:
         [el[0] for el in get_portfolio_list().all()]
     )
     st.title('Using 🌍OpusDigital® services:')
-    st.text('Data Model')
-    st.text('Pricer')
-    st.text('Automated Risk Manager')
-    st.text('Intelligent Market Maker')
+    st.text('@localhost:5000 - Data Model')
+    st.text('@localhost:5001 - Pricer')
+    st.text('@localhost:5002 - Automated Risk Manager ')
+    st.text('@localhost:5003 - Intelligent Market Maker')
 # URL of the rainbowkit deployment to embed
 website_url = "http://localhost:3000"  # Replace with the URL of the website you want to embed
 

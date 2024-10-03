@@ -109,13 +109,15 @@ def generate_post_request():
 def list_api_methods():
     """Endpoint to list all the implemented API methods"""
     output = []
+    
     for rule in app.url_map.iter_rules():
-        methods = ', '.join(rule.methods - {"OPTIONS", "HEAD"})
-        output.append({
-            "endpoint": rule.endpoint,
-            "url": rule.rule,
-            "methods": methods
-        })
+        if rule.endpoint not in ['static', 'list_api_methods']:
+            methods = ', '.join(rule.methods - {"OPTIONS", "HEAD"})
+            output.append({
+                "endpoint": rule.endpoint,
+                "url": rule.rule,
+                "methods": methods
+            })
     return jsonify(output)
 
 if __name__ == '__main__':
