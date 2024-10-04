@@ -5,6 +5,10 @@ base_url_pricer = 'http://127.0.0.1:5001/'
 base_url_arm = 'http://127.0.0.1:5002/'
 base_url_imm = 'http://127.0.0.1:5003/'
 
+headers = {
+    'Content-Type': 'application/json'
+}
+
 def get_service_method_list(base_url):
     response = requests.get(f'{base_url}/methods')
     if response.status_code == 200:
@@ -19,16 +23,16 @@ def call_pricer(method_name, direction, data):
         return "Error", "Wrong method name for pricer"
     URL = base_url_pricer + method_name
     if direction == 'GET':
-        response = requests.get(URL)
+        response = requests.get(URL, headers=headers)
     elif direction == 'PUT':
-        response = requests.put(URL, data=data)
+        response = requests.put(URL, headers=headers, data=data)
     elif direction == 'POST':
-        response = requests.post(URL, data=data)
+        response = requests.post(URL, headers=headers, data=data)
     return URL, response
 
 def call_arm(method_name, direction, data):
     URL = base_url_arm + method_name
-    response = requests.get(URL, data=data)
+    response = requests.get(URL, headers=headers, data=data)
     return URL, response
 
 def call_imm(method_name, direction, data):
@@ -36,15 +40,15 @@ def call_imm(method_name, direction, data):
         return "Error", "Wrong method name for imm"
     URL = base_url_imm + method_name
     if direction == 'GET':
-        response = requests.get(URL)
+        response = requests.get(URL, headers=headers)
     elif direction == 'PUT':
-        response = requests.put(URL, data=data)
+        response = requests.put(URL, headers=headers, data=data)
     elif direction == 'POST':
-        response = requests.post(URL, data=data)
+        response = requests.post(URL, headers=headers, data=data)
     return URL, response
 
 
 def call_api(method_name, direction, data):
     URL = base_url_database_prod + method_name
-    response = requests.get(URL, data=data)
+    response = requests.get(URL, headers=headers, data=data)
     return URL, response
