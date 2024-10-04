@@ -120,22 +120,32 @@ with tabs[0]:
     # Add content to each column
     with col1:
         st.header("Pricer method list:")
-        for item in get_pricer_method_list(base_url_pricer):
+        for item in get_service_method_list(base_url_pricer):
             st.json(item)
+        if len(df) > 0:
+            st.header("Method call example:")
+            st.text(call_pricer('calculatePrice', 'GET', dict()))
+            st.text(call_pricer('calculateGreeks', 'GET', dict()))
 
     with col2:
         st.header("Intelligent Market Makert method list:")
-        for item in get_pricer_method_list(base_url_imm):
+        for item in get_service_method_list(base_url_imm):
             st.json(item)
+        if len(df) > 0:
+            st.header("Method call example:")
+            trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
+            test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
+            st.text(test_fx_option)
+            st.text(call_imm('displayAdjustedPrice', 'POST', test_fx_option.to_dict()))
 
     with col3:
         st.header("Automated Risk Manager method list:")
-        for item in get_pricer_method_list(base_url_arm):
+        for item in get_service_method_list(base_url_arm):
             st.json(item)
 
     with col4:
         st.header("Database Model method list:")
-        for item in get_pricer_method_list(base_url_database_prod):
+        for item in get_service_method_list(base_url_database_prod):
             st.json(item)
 
 
