@@ -22,13 +22,12 @@ Make sure to install all the python requirements:
 pip install --user -r requirements.txt
 ```
 
-## Notes for pygraphviz and erdantic installations on Windows
-
-On Windows 10, pip 24.1 and python 3.12. It took me these steps to complete the installation.
-
-Download and install Graphviz: https://graphviz.org/download/
-
-Then run the following command:pi
+# Run
+In two separate terminals run:
 ```
-python -m pip install --config-settings="--global-option=build_ext" --config-settings="--global-option=-IC:\Program Files\Graphviz\include" --config-settings="--global-option=-LC:\Program Files\Graphviz\lib" pygraphviz
+python ./startServers.py
+```
+and
+```
+streamlit run ./ui/app.py
 ```

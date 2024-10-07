@@ -1,4 +1,5 @@
 import requests
+import json
 
 base_url_database_prod = 'http://127.0.0.1:5000/'
 base_url_pricer = 'http://127.0.0.1:5001/'
@@ -28,12 +29,12 @@ def call_pricer(method_name, direction, data):
         response = requests.put(URL, headers=headers, data=data)
     elif direction == 'POST':
         response = requests.post(URL, headers=headers, data=data)
-    return URL, response
+    return URL, response.status_code, json.loads(response.content.decode('utf-8'))
 
 def call_arm(method_name, direction, data):
     URL = base_url_arm + method_name
     response = requests.get(URL, headers=headers, data=data)
-    return URL, response
+    return URL, response.status_code, json.loads(response.content.decode('utf-8'))
 
 def call_imm(method_name, direction, data):
     if method_name not in ['displayAdjustedPrice']:
@@ -45,10 +46,10 @@ def call_imm(method_name, direction, data):
         response = requests.put(URL, headers=headers, data=data)
     elif direction == 'POST':
         response = requests.post(URL, headers=headers, data=data)
-    return URL, response
+    return URL, response.status_code, json.loads(response.content.decode('utf-8'))
 
 
 def call_api(method_name, direction, data):
     URL = base_url_database_prod + method_name
     response = requests.get(URL, headers=headers, data=data)
-    return URL, response
+    return URL, response.status_code, json.loads(response.content.decode('utf-8'))

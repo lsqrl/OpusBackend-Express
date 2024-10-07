@@ -6,9 +6,7 @@ import altair as alt
 import subprocess
 import os
 from PIL import Image  # Import Pillow for image handling
-
-import streamlit as st
-import pandas as pd
+from datetime import datetime
 from db import *
 from service import *
 from erd import *
@@ -124,8 +122,12 @@ with tabs[0]:
             st.json(item)
         if len(df) > 0:
             st.header("Method call example:")
-            st.text(call_pricer('calculatePrice', 'GET', dict()))
-            st.text(call_pricer('calculateGreeks', 'GET', dict()))
+            URL, status, response = call_pricer('calculatePrice', 'GET', dict())
+            st.text(URL + " " + str(status))
+            st.write(response)
+            URL, status, response = call_pricer('calculateGreeks', 'GET', dict())
+            st.text(URL + " " + str(status))
+            st.write(response)
 
     with col2:
         st.header("Intelligent Market Makert method list:")
@@ -135,9 +137,12 @@ with tabs[0]:
             st.header("Method call example:")
             trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
             test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
-            st.text(test_fx_option)
-            st.text(type(test_fx_option))
-            st.text(call_imm('displayAdjustedPrice', 'POST', test_fx_option.to_json()))
+            data = test_fx_option.iloc[0]
+            data["expiry_time"] = str(data["expiry_time"])
+            data["expiry_time"] = data["expiry_time"].replace(' ', 'T') + 'Z' # to get '%Y-%m-%dT%H:%M:%SZ')
+            URL, status, response = call_imm('displayAdjustedPrice', 'POST', data.to_json())
+            st.text(URL + " " + str(status))
+            st.write(response)
 
     with col3:
         st.header("Automated Risk Manager method list:")
