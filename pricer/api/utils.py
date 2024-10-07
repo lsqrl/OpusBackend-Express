@@ -19,7 +19,7 @@ def get_option_data():
     if response.status_code == 200:
         # Assuming the API returns a JSON array with the necessary fields for each option
         data = response.json()
-        
+        print(data)
         # Extracting fields for each option in the response
         option_list = []
         for option in data:

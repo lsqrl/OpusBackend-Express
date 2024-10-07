@@ -269,7 +269,7 @@ def fake_fx_option(session):
     for el in trade_ids:
         trade_id = el[0]
         bank_account_id = session.query(BankAccount.id).join(Retail, Retail.id == BankAccount.counterparty_id).filter(Retail.name=="Alice Smith").all()[0][0]
-        option = FXOption(trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='Call', direction='sell',
+        option = FXOption(trade_id=trade_id, underlying_id=1, accounting_id=1, bank_account_id=bank_account_id, premium_currency_id=1, type='CALL', direction='SELL',
                 notional=1000000, strike=1.1) # trade_time, premium_settlement_date and expiry_time we can leave as the default
         
         session.add(option)

@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, CheckConstraint, Integer, BigInteger, \
     LargeBinary, Float, String, Boolean, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 
@@ -598,8 +598,8 @@ class FXOption(Base):
     # trade_time = Column(DateTime, ForeignKey('trades.trades.timestamp'), nullable=False) - will be extracted via join from trade table
     premium_settlement_date = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
-    expiry_time = Column(DateTime, default=datetime.now(
-        timezone.utc), nullable=False)
+    expiry_time = Column(DateTime, default=(datetime.now(
+        timezone.utc) + timedelta(days=365)).replace(microsecond=0), nullable=False)
     
     parent_t = relationship('Trade', back_populates='child_fxo')
     parent_cu = relationship('Currencies',

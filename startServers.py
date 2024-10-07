@@ -15,7 +15,7 @@ def start_servers():
         processes.append(process)
 
     # for UI
-    processes.append(subprocess.run(["streamlit", "run", os.path.join("ui", "app.py")]))
+    #processes.append(subprocess.run(["streamlit", "run", os.path.join("ui", "app.py")]))
 
     for process in processes:
         process.wait()

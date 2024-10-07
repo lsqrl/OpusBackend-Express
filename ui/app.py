@@ -136,7 +136,8 @@ with tabs[0]:
             trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
             test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
             st.text(test_fx_option)
-            st.text(call_imm('displayAdjustedPrice', 'POST', test_fx_option.to_dict()))
+            st.text(type(test_fx_option))
+            st.text(call_imm('displayAdjustedPrice', 'POST', test_fx_option.to_json()))
 
     with col3:
         st.header("Automated Risk Manager method list:")
