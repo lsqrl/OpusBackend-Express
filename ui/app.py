@@ -136,6 +136,7 @@ with tabs[0]:
         if len(df) > 0:
             st.header("Method call example:")
             trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
+            st.text("Demo for: FXOption trade_id " + str(trade_id))
             test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
             data = test_fx_option.iloc[0]
             data["expiry_time"] = str(data["expiry_time"])
