@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import numpy as np
 from scipy.stats import truncnorm
 from threading import Lock
@@ -46,5 +46,33 @@ def get_numbers():
         'volatility': volatility
     })
 
+@app.route('/setValues', methods=['POST'])
+def set_values():
+    global spot, volatility, rate
+
+    # Extract values from the JSON payload
+    data = request.json
+
+    new_spot = data.get('spot')
+    new_volatility = data.get('volatility')
+    new_rate = data.get('rate')
+
+    # Lock the spot update for thread safety
+    with spot_lock:
+        if new_spot is not None:
+            spot = new_spot
+        if new_volatility is not None:
+            volatility = new_volatility
+        if new_rate is not None:
+            rate = new_rate
+
+    return jsonify({
+        'message': 'Values updated successfully',
+        'spot': spot,
+        'volatility': volatility,
+        'rate': rate
+    })
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=6000)
