@@ -27,10 +27,6 @@ app = Flask(__name__)
 # - The idea is to decrease the Delta, always. So if a new option increases our Delta, then its price should be *higher* than BS. 
 # If it decreases it, price should be *lower* than BS.
 
-# Hardcoded values for volatility, rate, and spot
-VOLATILITY = 0.2  # example value
-RATE = 0.05       # example value
-SPOT = 1.1        # example value
 
 @app.route('/displayAdjustedPrice', methods=['POST'])
 # Given data for an option, display the adjusted price
@@ -50,12 +46,19 @@ def display_adj_price():
 
         # Calculate the time to expiry in years
         time_to_expiry = (expiry_datetime - current_time).days / 365.0
-        
-        p1 = option_price(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
+                
+        market_response = requests.get('http://localhost:5004/getNumbers')
+        if market_response.status_code != 200:
+            return jsonify({'error': 'Failed to fetch market data from external service'}), 500
+        volatility = float(market_response.json().get('volatility'))
+        rate = float(market_response.json().get('rate'))
+        spot = float(market_response.json().get('spot'))
 
-        d1 = option_delta(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
+        p1 = option_price(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
-        v1 = option_vega(strike, time_to_expiry, RATE, VOLATILITY, notional, SPOT, option_type)
+        d1 = option_delta(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
+
+        v1 = option_vega(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
         response = requests.get('http://localhost:5001/calculateGreeks')
         if response.status_code == 200:

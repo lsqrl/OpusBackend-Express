@@ -7,6 +7,7 @@ def start_servers():
         "python -m pricer.api.app",
         "python -m arm.api.app",
         "python -m imm.api.app",
+        "python -m market.dataFaker"
     ]
 
     processes = []
