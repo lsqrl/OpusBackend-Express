@@ -135,7 +135,8 @@ with columns[1]:
             st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
 
             st.write("Table details")
-            st.dataframe(get_table_details(option))
+            details = get_table_details(option).all()
+            st.data_editor(pd.DataFrame(details, columns=["name", "type", "relationship"]))
             #get_quote = st.button("Get Quote") # will be calling the pricer
             submit = st.form_submit_button("Book (confirmation button)")
         # Process the form submission
