@@ -23,6 +23,10 @@ pip install --user -r requirements.txt
 ```
 
 # Run
+First make sure to run the most recent version of the database:
+```
+python database_prod/initialize_database.py
+```
 In two separate terminals run:
 ```
 python ./startServers.py

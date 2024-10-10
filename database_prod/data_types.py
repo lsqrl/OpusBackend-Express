@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
+import random
 
 Base = declarative_base()
 
@@ -584,7 +585,6 @@ class CryptoPerpetual(Base):
 
 class FXOption(Base):
     __tablename__ = 'fx_options'
-    __table_args__ = {'schema': schema_trades}
     id = Column(Integer, primary_key=True, autoincrement=True)
     trade_id = Column(Integer, ForeignKey('trades.trades.id'), nullable=False)
     underlying_id = Column(Integer, ForeignKey('account.currencies.id'), nullable=False)
@@ -599,7 +599,7 @@ class FXOption(Base):
     premium_settlement_date = Column(DateTime, default=datetime.now(
         timezone.utc), nullable=False)
     expiry_time = Column(DateTime, default=(datetime.now(
-        timezone.utc) + timedelta(days=365)).replace(microsecond=0), nullable=False)
+        timezone.utc) + timedelta(days=365+random.randint(1, 50))).replace(microsecond=0), nullable=False)
     
     parent_t = relationship('Trade', back_populates='child_fxo')
     parent_cu = relationship('Currencies',
@@ -609,6 +609,22 @@ class FXOption(Base):
     parent_cp = relationship('Currencies',
                              foreign_keys=[premium_currency_id])  
     parent_a = relationship('BankAccount', back_populates='child_fxo')
+    
+    __table_args__ = (
+        CheckConstraint(
+            'expiry_time > CURRENT_TIMESTAMP', 
+            name='check_expiry_time_in_future'
+        ),
+        CheckConstraint(
+            "direction IN ('BUY', 'SELL')",
+            name='direction_check'
+        ),
+        CheckConstraint(
+            "type IN ('CALL', 'PUT')",
+            name='type_check'
+        ),
+        {'schema': schema_trades}
+    )
 
     def __repr__(self):
         return (f"<Option(id={self.id}, trade_id={self.trade_id}, "

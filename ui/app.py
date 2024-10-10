@@ -124,19 +124,19 @@ with columns[1]:
             
             df = pd.DataFrame(
                 [
-                {"direction": "st.selectbox", "strategy": 4, "is_widget": True},
-                {"direction": "st.balloons", "strategy": 5, "is_widget": False},
-                {"direction": "st.time_input", "strategy": 3, "is_widget": True},
+                {"direction": "st.selectbox", "type": 4, "is_widget": True},
+                {"direction": "st.balloons", "type": 5, "is_widget": False},
+                {"direction": "st.time_input", "type": 3, "is_widget": True},
             ]
             )
-            cat_direction = ['buy', 'sell']
-            cat_strategy = ['call', 'put']
+            cat_direction = ['BUY', 'SELL']
+            cat_type = ['CALL', 'PUT']
 
             df["direction"] = (
                 df["direction"].astype("category").cat.remove_categories(df['direction']).cat.add_categories(cat_direction)
             )
-            df["strategy"] = (
-                df["strategy"].astype("category").cat.remove_categories(df['strategy']).cat.add_categories(cat_strategy)
+            df["type"] = (
+                df["type"].astype("category").cat.remove_categories(df['type']).cat.add_categories(cat_type)
             )
             edited_df = st.data_editor(df)
 
