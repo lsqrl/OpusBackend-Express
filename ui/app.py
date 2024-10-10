@@ -68,8 +68,9 @@ st.title("Portfolio management")
 
 # Retrieve data from PostgreSQL
 df = get_portfolio_details(option)
+df_portfolio_details = df
 
-# Display the dataframe in Streamlit
+# Display each type of trade from the selected protfolio
 st.dataframe(df)
 trade_types = list(set(df['instrument_name'].to_list()))
 if len(trade_types) > 0:
@@ -83,38 +84,70 @@ if len(trade_types) > 0:
             df_detail = get_trade_detail(trade_ids, trade_types[i])
             st.dataframe(df_detail)
 
-option = st.selectbox(
-            'Trade type:',
-            [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
+
+
+columns = st.columns(4)
+with columns[0]:
+    # Define a function to be called
+    def say_hello(trade_id):
+        if len(df_portfolio_details) > 0:
+            st.write("This is the adjusted price")
+            st.text("Demo for: FXOption trade_id " + str(trade_id))
+            with st.spinner("Processing..."):
+                test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
+                #st.success(test_fx_option)
+            data = test_fx_option.iloc[0]
+            data["expiry_time"] = str(data["expiry_time"])
+            data["expiry_time"] = data["expiry_time"].replace(' ', 'T') + 'Z' # to get '%Y-%m-%dT%H:%M:%SZ')
+            URL, status, response = call_imm('displayAdjustedPrice', 'POST', data.to_json())
+            st.text(URL + " " + str(status))
+            st.write(response)
+        else:
+            st.write("This portfolio is empty. Please book a trade first before requesting the adjusted price.")
+
+
+    # Display a button
+    if len(df_portfolio_details) > 0:
+        trade_id = st.selectbox(
+            'Choose a trade_id:',
+            df[df['instrument_name'] == 'FXOption']['trade_id'].to_list())
+        if st.button("Display adjusted price"):
+            # Call the function when the button is clicked
+            say_hello(trade_id)
+
+with columns[1]:
+    option = st.selectbox(
+                'Trade type:',
+                [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
+                
+            )
+    # Button to open the form
+    if st.button("Book trade"):
+        # Create the form after button is clicked
+        with st.form("book_trade"):
+            # Add form elements
+            st.text("Selected option is: " + option)
+            age = st.number_input("Age", min_value=0)
+            favorite_color = st.color_picker("Pick a color")
             
-        )
-# Button to open the form
-if st.button("Book trade"):
-    # Create the form after button is clicked
-    with st.form("book_trade"):
-        # Add form elements
-        st.text("Selected option is: " + option)
-        age = st.number_input("Age", min_value=0)
-        favorite_color = st.color_picker("Pick a color")
-        
 
-        df = pd.DataFrame(
-            [
-            {"command": "st.selectbox", "rating": 4, "is_widget": True},
-            {"command": "st.balloons", "rating": 5, "is_widget": False},
-            {"command": "st.time_input", "rating": 3, "is_widget": True},
-        ]
-        )
-        edited_df = st.data_editor(df)
+            df = pd.DataFrame(
+                [
+                {"command": "st.selectbox", "rating": 4, "is_widget": True},
+                {"command": "st.balloons", "rating": 5, "is_widget": False},
+                {"command": "st.time_input", "rating": 3, "is_widget": True},
+            ]
+            )
+            edited_df = st.data_editor(df)
 
-        favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
-        st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
+            favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
+            st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
 
-        #get_quote = st.button("Get Quote") # will be calling the pricer
-        submit = st.form_submit_button("Book (confirmation button)")
-    # Process the form submission
-    if submit:
-        st.write(f"Hello {option}, you are {age} years old, and your favorite color is {favorite_color}.")
+            #get_quote = st.button("Get Quote") # will be calling the pricer
+            submit = st.form_submit_button("Book (confirmation button)")
+        # Process the form submission
+        if submit:
+            st.write(f"Hello {option}, you are {age} years old, and your favorite color is {favorite_color}.")
 
 # Title of the app
 st.title("Streamlit developer helper")
