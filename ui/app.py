@@ -83,29 +83,38 @@ if len(trade_types) > 0:
             df_detail = get_trade_detail(trade_ids, trade_types[i])
             st.dataframe(df_detail)
 
+option = st.selectbox(
+            'Trade type:',
+            [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
+            
+        )
 # Button to open the form
 if st.button("Book trade"):
     # Create the form after button is clicked
     with st.form("book_trade"):
         # Add form elements
-        option = st.selectbox(
-            'Trade type:',
-            [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
-            
-        )
+        st.text("Selected option is: " + option)
         age = st.number_input("Age", min_value=0)
         favorite_color = st.color_picker("Pick a color")
         
-        # Add a submit button
+
+        df = pd.DataFrame(
+            [
+            {"command": "st.selectbox", "rating": 4, "is_widget": True},
+            {"command": "st.balloons", "rating": 5, "is_widget": False},
+            {"command": "st.time_input", "rating": 3, "is_widget": True},
+        ]
+        )
+        edited_df = st.data_editor(df)
+
+        favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
+        st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
+
         #get_quote = st.button("Get Quote") # will be calling the pricer
         submit = st.form_submit_button("Book (confirmation button)")
-
     # Process the form submission
     if submit:
-        st.write(f"Hello {name}, you are {age} years old, and your favorite color is {favorite_color}.")
-
-
-import streamlit as st
+        st.write(f"Hello {option}, you are {age} years old, and your favorite color is {favorite_color}.")
 
 # Title of the app
 st.title("Streamlit developer helper")
