@@ -8,6 +8,8 @@ from db import *
 from service import *
 from erd import *
 
+pd.options.mode.chained_assignment = None
+
 st.set_page_config(
     page_title="Opus digital mission control",
     page_icon="🌍",
@@ -76,7 +78,7 @@ if len(trade_types) > 0:
             trade_ids = df[df['instrument_name'] == trade_types[i]]['trade_id'].to_list()
             trade_ids = list(map(str, trade_ids))
             df_detail = get_trade_detail(trade_ids, trade_types[i])
-            st.dataframe(df_detail)
+            st.dataframe(df_detail.iloc[:, 1:])
 
 ########################################################################################################################################################################################
 
@@ -90,10 +92,10 @@ with columns[0]:
             with st.spinner("Processing..."):
                 test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
                 #st.success(test_fx_option)
-            data = test_fx_option.iloc[0]
-            data["expiry_time"] = str(data["expiry_time"])
-            data["expiry_time"] = data["expiry_time"].replace(' ', 'T') + 'Z' # to get '%Y-%m-%dT%H:%M:%SZ')
-            URL, status, response = call_imm('displayAdjustedPrice', 'POST', data.to_json())
+                data = test_fx_option.iloc[0]
+                data["expiry_time"] = str(data["expiry_time"])
+                data["expiry_time"] = data["expiry_time"].replace(' ', 'T') + 'Z' # to get '%Y-%m-%dT%H:%M:%SZ')
+                URL, status, response = call_imm('displayAdjustedPrice', 'POST', data.to_json())
             st.text(URL + " " + str(status))
             st.write(response)
         else:

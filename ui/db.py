@@ -61,9 +61,6 @@ def get_table_details(table_name):
     query = f"""SELECT 
     cols.column_name, 
     cols.data_type, 
-    cols.is_nullable, 
-    cols.character_maximum_length,
-    cols.column_default,
     cons.constraint_type
     FROM 
         information_schema.columns AS cols
@@ -91,5 +88,8 @@ def get_table_details(table_name):
         cols.table_schema = '{schema_name}';
 
     """
+    #-- cols.is_nullable, 
+    #-- cols.character_maximum_length,
+    #-- cols.column_default,
     df = connection.execute(text(query)) 
     return df
