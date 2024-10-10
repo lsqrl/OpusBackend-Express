@@ -15,6 +15,15 @@ url = URL.create(
 engine = create_engine(url)
 connection = engine.connect()
 
+def map_class_to_table(class_name):
+    if class_name == "FXOption":
+        table_name = "fx_options"
+    elif class_name == "FXSpot":
+        table_name = "fx_spot"
+    elif class_name == "FiatFunding":
+        table_name = "fiat_funding"
+    return table_name
+
 def get_portfolio_details(name):
     # Query the PostgreSQL table
     query = f"""SELECT t.timestamp as timestamp, p.name as portfolio_name, t.id as trade_id, i.name as instrument_name FROM trades.portfolios p
@@ -30,12 +39,7 @@ def get_portfolio_details(name):
 
 def get_trade_detail(trade_ids, table_name):
     # we want to understand the details of all the trades
-    if table_name == "FXOption":
-        table_name = "fx_options"
-    elif table_name == "FXSpot":
-        table_name = "fx_spot"
-    elif table_name == "FiatFunding":
-        table_name = "fiat_funding"
+    table_name = map_class_to_table(table_name)
     query = f"""SELECT * FROM trades.{table_name} WHERE trade_id IN ({",".join(trade_ids)})"""
     df = pd.read_sql_query(query, engine)
     return df
@@ -47,5 +51,45 @@ def get_portfolio_list():
 
 def get_trade_type():
     query = """SELECT name from trades.instruments"""
+    df = connection.execute(text(query)) 
+    return df
+
+def get_table_details(table_name):
+    table_name = map_class_to_table(table_name)
+    schema_name = 'trades'
+    
+    query = f"""SELECT 
+    cols.column_name, 
+    cols.data_type, 
+    cols.is_nullable, 
+    cols.character_maximum_length,
+    cols.column_default,
+    cons.constraint_type
+    FROM 
+        information_schema.columns AS cols
+    LEFT JOIN (
+        SELECT 
+            tc.constraint_type,
+            kcu.column_name 
+        FROM 
+            information_schema.table_constraints AS tc 
+        JOIN 
+            information_schema.key_column_usage AS kcu 
+        ON 
+            tc.constraint_name = kcu.constraint_name 
+            AND tc.table_name = kcu.table_name
+        WHERE 
+            tc.table_name = '{table_name}'
+        AND 
+            tc.table_schema = '{schema_name}'
+    ) AS cons
+    ON 
+        cols.column_name = cons.column_name
+    WHERE 
+        cols.table_name = '{table_name}'
+    AND 
+        cols.table_schema = '{schema_name}';
+
+    """
     df = connection.execute(text(query)) 
     return df

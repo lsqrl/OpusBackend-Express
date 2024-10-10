@@ -1,9 +1,6 @@
-#######################
-# Import libraries
 import streamlit as st
 import pandas as pd
 import altair as alt
-import subprocess
 import os
 from PIL import Image  # Import Pillow for image handling
 from datetime import datetime
@@ -19,7 +16,6 @@ st.set_page_config(
 
 alt.themes.enable("dark")
         
-
 import base64
 def sidebar_bg(side_bg):
 
@@ -39,7 +35,7 @@ side_bg = os.path.join("ui", "background.png")
 sidebar_bg(side_bg)
 
 
-#######################
+########################################################################################################################################################################################
 # Sidebar
 compiles = False
 with st.sidebar:
@@ -61,11 +57,9 @@ with st.sidebar:
     st.text('@localhost:5001 - Pricer')
     st.text('@localhost:5002 - Automated Risk Manager ')
     st.text('@localhost:5003 - Intelligent Market Maker')
-# URL of the rainbowkit deployment to embed
-website_url = "http://localhost:3000"  # Replace with the URL of the website you want to embed
 
 st.title("Portfolio management")
-
+########################################################################################################################################################################################
 # Retrieve data from PostgreSQL
 df = get_portfolio_details(option)
 df_portfolio_details = df
@@ -84,12 +78,12 @@ if len(trade_types) > 0:
             df_detail = get_trade_detail(trade_ids, trade_types[i])
             st.dataframe(df_detail)
 
-
+########################################################################################################################################################################################
 
 columns = st.columns(4)
 with columns[0]:
     # Define a function to be called
-    def say_hello(trade_id):
+    def get_adjusted_price(trade_id):
         if len(df_portfolio_details) > 0:
             st.write("This is the adjusted price")
             st.text("Demo for: FXOption trade_id " + str(trade_id))
@@ -104,21 +98,19 @@ with columns[0]:
             st.write(response)
         else:
             st.write("This portfolio is empty. Please book a trade first before requesting the adjusted price.")
-
-
-    # Display a button
     if len(df_portfolio_details) > 0:
         trade_id = st.selectbox(
             'Choose a trade_id:',
             df[df['instrument_name'] == 'FXOption']['trade_id'].to_list())
         if st.button("Display adjusted price"):
             # Call the function when the button is clicked
-            say_hello(trade_id)
+            get_adjusted_price(trade_id)
 
 with columns[1]:
     option = st.selectbox(
                 'Trade type:',
-                [el[0] for el in sorted(get_trade_type().all()[1:])], index=1
+                ["FXOption", "FXSpot", "FiatFunding"], #[el[0] for el in sorted(get_trade_type().all()[1:])], 
+                index=1
                 
             )
     # Button to open the form
@@ -127,10 +119,7 @@ with columns[1]:
         with st.form("book_trade"):
             # Add form elements
             st.text("Selected option is: " + option)
-            age = st.number_input("Age", min_value=0)
-            favorite_color = st.color_picker("Pick a color")
             
-
             df = pd.DataFrame(
                 [
                 {"command": "st.selectbox", "rating": 4, "is_widget": True},
@@ -143,11 +132,13 @@ with columns[1]:
             favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
             st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
 
+            st.write("Table details")
+            st.dataframe(get_table_details(option))
             #get_quote = st.button("Get Quote") # will be calling the pricer
             submit = st.form_submit_button("Book (confirmation button)")
         # Process the form submission
         if submit:
-            st.write(f"Hello {option}, you are {age} years old, and your favorite color is {favorite_color}.")
+            st.write(f"Booking {option}")
 
 # Title of the app
 st.title("Streamlit developer helper")
@@ -177,6 +168,7 @@ with tabs[0]:
             st.json(item)
         if len(df) > 0:
             st.header("Method call example:")
+            df = df_portfolio_details
             trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
             st.text("Demo for: FXOption trade_id " + str(trade_id))
             test_fx_option = get_trade_detail([str(trade_id), ], 'FXOption')
@@ -197,7 +189,6 @@ with tabs[0]:
         for item in get_service_method_list(base_url_database_prod):
             st.json(item)
 
-
 with tabs[1]:
     st.header("This is Entity Relationship Diagram of OpusDigital Data Model")
     st.write("Supported by PostgresDB")
@@ -208,8 +199,6 @@ with tabs[1]:
     image_path = os.path.join('ui', 'od_erd.png')  # Replace with your image path or URL
     image = Image.open(image_path)
     st.image(image)
-
-
 
 with tabs[2]:
     st.header("Random Quote")
