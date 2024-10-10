@@ -124,17 +124,26 @@ with columns[1]:
             
             df = pd.DataFrame(
                 [
-                {"command": "st.selectbox", "rating": 4, "is_widget": True},
-                {"command": "st.balloons", "rating": 5, "is_widget": False},
-                {"command": "st.time_input", "rating": 3, "is_widget": True},
+                {"direction": "st.selectbox", "strategy": 4, "is_widget": True},
+                {"direction": "st.balloons", "strategy": 5, "is_widget": False},
+                {"direction": "st.time_input", "strategy": 3, "is_widget": True},
             ]
+            )
+            cat_direction = ['buy', 'sell']
+            cat_strategy = ['call', 'put']
+
+            df["direction"] = (
+                df["direction"].astype("category").cat.remove_categories(df['direction']).cat.add_categories(cat_direction)
+            )
+            df["strategy"] = (
+                df["strategy"].astype("category").cat.remove_categories(df['strategy']).cat.add_categories(cat_strategy)
             )
             edited_df = st.data_editor(df)
 
-            favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
-            st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
+            #favorite_command = edited_df.loc[edited_df["rating"].idxmax()]["command"]
+            #st.markdown(f"Your favorite command is **{favorite_command}** 🎈")
 
-            st.write("Table details")
+            st.write("Enter or select trade details:")
             details = get_table_details(option).all()
             st.data_editor(pd.DataFrame(details, columns=["name", "type", "relationship"]))
             #get_quote = st.button("Get Quote") # will be calling the pricer
@@ -156,7 +165,7 @@ with tabs[0]:
         st.header("Pricer method list:")
         for item in get_service_method_list(base_url_pricer):
             st.json(item)
-        if len(df) > 0:
+        if len(df_portfolio_details) > 0:
             st.header("Method call example:")
             URL, status, response = call_pricer('calculatePrice', 'GET', dict())
             st.text(URL + " " + str(status))
@@ -169,7 +178,7 @@ with tabs[0]:
         st.header("Intelligent Market Makert method list:")
         for item in get_service_method_list(base_url_imm):
             st.json(item)
-        if len(df) > 0:
+        if len(df_portfolio_details) > 0:
             st.header("Method call example:")
             df = df_portfolio_details
             trade_id = df[df['instrument_name'] == 'FXOption'].iloc[-1]['trade_id']
