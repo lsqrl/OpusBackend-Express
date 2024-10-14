@@ -218,8 +218,7 @@ class Account(Base):
 
     def __repr__(self):
         return (f"<Account(id={self.id}, counterparty_id={self.counterparty_id}, "
-                f"counterparty_type='{
-                    self.counterparty_type}', type_id={self.type_id}, "
+                f"counterparty_type='{self.counterparty_type}', type_id={self.type_id}, "
                 f"opening_time='{self.opening_time}', active={self.active}, "
                 f"closing_time='{self.closing_time}', trade_enabled={self.trade_enabled})>")
 
@@ -759,8 +758,7 @@ class LiquidityProviderAccountTrans(Base):
 
     def __repr__(self):
         return (f"<LiquidityProviderAccountTrans(id={self.id}, user_id={self.user_id}, "
-                f"transaction_type='{
-                    self.transaction_type}', amount={self.amount}, "
+                f"transaction_type='{self.transaction_type}', amount={self.amount}, "
                 f"timestamp='{self.timestamp}')>")
 
 
@@ -803,8 +801,7 @@ class LiquidityPoolTrans(Base):
 
     def __repr__(self):
         return (f"<LiquidityPoolTrans(id={self.id}, pool_id={self.pool_id}, user_id={self.user_id}, "
-                f"user_shares={self.user_shares}, transaction_type='{
-                    self.transaction_type}', "
+                f"user_shares={self.user_shares}, transaction_type='{self.transaction_type}', "
                 f"amount={self.amount}, timestamp='{self.timestamp}')>")
 
 
@@ -863,8 +860,7 @@ class Options(Base):
 
     def __repr__(self):
         return (f"<Option(id={self.id}, name='{self.name}', abbreviation='{self.abbreviation}', maturity='{self.maturity}', "
-                f"strike={self.strike}, direction='{self.direction}', strategy='{
-                    self.strategy}', premium={self.premium}, "
+                f"strike={self.strike}, direction='{self.direction}', strategy='{self.strategy}', premium={self.premium}, "
                 f"margin={self.margin}, notional={self.notional})>")
 
     def to_dict(self):
