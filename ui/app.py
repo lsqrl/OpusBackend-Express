@@ -168,10 +168,10 @@ with tabs[0]:
             st.json(item)
         if len(df_portfolio_details) > 0:
             st.header("Method call example:")
-            URL, status, response = call_pricer('calculatePrice', 'GET', {'currency': 'EURO'})
+            URL, status, response = call_pricer('calculatePrice', 'GET', {'currency': 'EURO'})  # CURRENCY DEFINITION
             st.text(URL + " " + str(status))
             st.write(response)
-            URL, status, response = call_pricer('calculateGreeks', 'GET', {'currency': 'EURO'})
+            URL, status, response = call_pricer('calculateGreeks', 'GET', {'currency': 'EURO'})  # CURRENCY DEFINITION
             st.text(URL + " " + str(status))
             st.write(response)
 
@@ -188,6 +188,7 @@ with tabs[0]:
             data = test_fx_option.iloc[0]
             data["expiry_time"] = str(data["expiry_time"])
             data["expiry_time"] = data["expiry_time"].replace(' ', 'T') + 'Z' # to get '%Y-%m-%dT%H:%M:%SZ')
+            data["currency"] = "EURO"  # CURRENCY DEFINITION
             URL, status, response = call_imm('displayAdjustedPrice', 'POST', data.to_json())
             st.text(URL + " " + str(status))
             st.write(response)

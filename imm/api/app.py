@@ -67,7 +67,6 @@ def display_adj_price():
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
         spot = float(market_response.json().get('spot')[currency])
-
         p1 = option_price(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
         d1 = option_delta(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
@@ -75,7 +74,7 @@ def display_adj_price():
         v1 = option_vega(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
         if vega is None or delta is None:
-            response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
+            response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks", params={'currency': currency})
             if response.status_code == 200:
                 D = response.json().get('delta')
                 V = response.json().get('vega')
