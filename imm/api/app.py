@@ -108,4 +108,4 @@ def list_api_methods():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=5003)
+    app.run(port=5003) # host="0.0.0.0",

@@ -5,6 +5,12 @@ Opus Express backend, lightweight to run on a remote server
 Before running the server, make sure that you have exported:
 1. POSTGRES_USERNAME
 2. POSTGRES_PASSWORD
+3. POSTGRES_NETWORK
+4. POSTGRES_DATABASE
+
+Also make sure to set up the BASE_URL namely:
+1. BASE_URL = "0.0.0.0" for remote deployment
+2. BASE_URL = "127.0.0.1" for on-prem deployment
 
 These variables have to be set up in:
 1. ui/db.py
