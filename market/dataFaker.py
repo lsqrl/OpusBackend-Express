@@ -9,6 +9,7 @@ app = Flask(__name__)
 spot = 1.1
 spot_lock = Lock()
 
+# TODO: 3/3 Have getNumbers for Euro, BTC (around 58.444k) and ETH (around 2.282k)
 @app.route('/getNumbers')
 def get_numbers():
     global spot

@@ -65,7 +65,7 @@ if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5001,debug=True)
 
 
-# TODO: add a POST request that calls option_price(strike, expiry, rate, volatility, notional, spot, option_type)
+# TODO: 2/3 add a POST request that calls option_price(strike, expiry, rate, volatility, notional, spot, option_type)
 # which is in pricer\analytics\optionPrice.py
 # if spot, volatility, rate are not in the request body, then they are taken from localhost:5004/market/getNumbers
 # otherwise they are from request body.

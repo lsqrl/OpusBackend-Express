@@ -33,7 +33,7 @@ app = Flask(__name__)
 # Adjusted = "pricer price" + "arm contribution"
 def display_adj_price():
     try:
-        # TODO: again add a currency in the request body so that you can filter through the response of getNumbers
+        # TODO: 1/3 again add a currency in the request body so that you can filter through the response of getNumbers
         # and again, if spot, volatility, rate are in the request body, then you do not take them from getNumbers
 
         data = request.json
