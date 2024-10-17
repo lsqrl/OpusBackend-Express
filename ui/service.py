@@ -5,6 +5,7 @@ base_url_database_prod = 'http://127.0.0.1:5000/'
 base_url_pricer = 'http://127.0.0.1:5001/'
 base_url_arm = 'http://127.0.0.1:5002/'
 base_url_imm = 'http://127.0.0.1:5003/'
+base_url_datafaker = 'http://127.0.0.1:5004/'
 
 headers = {
     'Content-Type': 'application/json'

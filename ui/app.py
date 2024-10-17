@@ -59,6 +59,7 @@ with st.sidebar:
     st.text('@localhost:5001 - Pricer')
     st.text('@localhost:5002 - Automated Risk Manager ')
     st.text('@localhost:5003 - Intelligent Market Maker')
+    st.text('@localhost:5004 - Recommender FinData')
 
 st.title("Portfolio management")
 ########################################################################################################################################################################################
@@ -158,7 +159,7 @@ st.title("Streamlit developer helper")
 # Create tabs
 tabs = st.tabs(["Service API", "Entity Relationship Diagram", "UI Design"])
 with tabs[0]:
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     # Add content to each column
     with col1:
@@ -195,8 +196,13 @@ with tabs[0]:
         st.header("Automated Risk Manager method list:")
         for item in get_service_method_list(base_url_arm):
             st.json(item)
-
+    
     with col4:
+        st.header("Recommender method list:")
+        for item in get_service_method_list(base_url_datafaker):
+            st.json(item)
+
+    with col5:
         st.header("Database Model method list:")
         for item in get_service_method_list(base_url_database_prod):
             st.json(item)
