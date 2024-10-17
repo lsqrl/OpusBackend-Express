@@ -11,13 +11,16 @@ CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 
 @app.route('/calculateGreeks', methods=['GET'])
 def calculate_greeks():
+    currency = request.args.get('currency')
     try:
         market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
         if market_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
+        print(market_response)
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
-        spot = float(market_response.json().get('spot'))
+        print(spot)
+        spot = float(market_response.json().get('spot')[currency])
         
         delta, gamma, theta, vega = calculate_option_greeks(volatility, rate, spot)
         
@@ -92,7 +95,6 @@ def price_option():
         # Call the option_price function
         option_type = "CALL" # this is the default
         price = option_price(strike, expiry, rate, volatility, notional, spot, option_type)
-        price = 100
         return jsonify({'price': price}), 200
 
     except Exception as e:

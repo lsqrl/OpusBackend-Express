@@ -39,12 +39,18 @@ def display_adj_price():
     try:
         # TODO: 1/3 again add a currency in the request body so that you can filter through the response of getNumbers
         # and again, if spot, volatility, rate are in the request body, then you do not take them from getNumbers
-
+        # if vega and delta (both!) are in the request body, then you do not call calculateGreek
         data = request.json
         strike = data.get('strike')
         expiry_time = data.get('expiry_time')
         notional = data.get('notional')
         option_type = data.get('type')
+        currency = data.get('currency')
+        vega = data.get('vega')
+        delta = data.get('delta')
+
+        if currency is None:
+            currency = "EURO"
 
         expiry_datetime = datetime.strptime(expiry_time, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
 
@@ -60,7 +66,7 @@ def display_adj_price():
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
-        spot = float(market_response.json().get('spot'))
+        spot = float(market_response.json().get('spot')[currency])
 
         p1 = option_price(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
@@ -68,12 +74,16 @@ def display_adj_price():
 
         v1 = option_vega(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
-        response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
-        if response.status_code == 200:
-            D = response.json().get('delta')
-            V = response.json().get('vega')
+        if vega is None or delta is None:
+            response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
+            if response.status_code == 200:
+                D = response.json().get('delta')
+                V = response.json().get('vega')
+            else:
+                return jsonify({"error": "Could not fetch portfolio greeks"}), 500
         else:
-            return jsonify({"error": "Could not fetch portfolio greeks"}), 500
+            D = delta
+            V = vega
         
         # Step 4: Default bid and ask calculations
         default_bid = p1 * 0.95  # p1 - 5%

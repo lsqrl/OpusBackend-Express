@@ -168,10 +168,10 @@ with tabs[0]:
             st.json(item)
         if len(df_portfolio_details) > 0:
             st.header("Method call example:")
-            URL, status, response = call_pricer('calculatePrice', 'GET', dict())
+            URL, status, response = call_pricer('calculatePrice', 'GET', {'currency': 'EURO'})
             st.text(URL + " " + str(status))
             st.write(response)
-            URL, status, response = call_pricer('calculateGreeks', 'GET', dict())
+            URL, status, response = call_pricer('calculateGreeks', 'GET', {'currency': 'EURO'})
             st.text(URL + " " + str(status))
             st.write(response)
 

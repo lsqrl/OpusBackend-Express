@@ -26,7 +26,7 @@ def call_pricer(method_name, direction, data):
         return "Error", "Wrong method name for pricer"
     URL = base_url_pricer + method_name
     if direction == 'GET':
-        response = requests.get(URL, headers=headers)
+        response = requests.get(URL, headers=headers, params=data)
     elif direction == 'PUT':
         response = requests.put(URL, headers=headers, data=data)
     elif direction == 'POST':
@@ -49,6 +49,19 @@ def call_imm(method_name, direction, data):
     elif direction == 'POST':
         response = requests.post(URL, headers=headers, data=data)
     return URL, response.status_code, json.loads(response.content.decode('utf-8'))
+
+def call_data_faker(method_name, direction, data):
+    if method_name not in ['getNumbers', 'setValues']:
+        return "Error", "Wrong method name for recommender FinData"
+    URL = base_url_imm + method_name
+    if direction == 'GET':
+        response = requests.get(URL, headers=headers)
+    elif direction == 'PUT':
+        response = requests.put(URL, headers=headers, data=data)
+    elif direction == 'POST':
+        response = requests.post(URL, headers=headers, data=data)
+    return URL, response.status_code, json.loads(response.content.decode('utf-8'))
+
 
 
 def call_api(method_name, direction, data):

@@ -19,7 +19,7 @@ CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 @app.route('/bookFXOption', methods=['POST'])
 def generate_post_request():
     try:
-        # Step 1: Extract query parameters from the GET request
+        # Step 1: Extract query parameters from the POST request
         data = request.json
         underlying_id = data.get('underlying_id')
         accounting_id = data.get('accounting_id')
@@ -31,6 +31,7 @@ def generate_post_request():
         strike = float(data.get('strike'))
         premium_settlement_date = data.get('premium_settlement_date')
         expiry_time = data.get('expiry_time')
+        currency = data.get('currency')
 
         greek_response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
         if greek_response.status_code != 200:
@@ -54,7 +55,7 @@ def generate_post_request():
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
-        spot = float(market_response.json().get('spot'))
+        spot = float(market_response.json().get('spot')['currency'])
 
         d2 = option_delta(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
         v2 = option_vega(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
