@@ -63,7 +63,7 @@ def list_api_methods():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.run(host=os.getenv("BASE_URL"), port=5001, debug=True)
+    app.run(host=os.getenv("BASE_URL"), port=5001,debug=True)
 
 
 # TODO: 2/3 add a POST request that calls option_price(strike, expiry, rate, volatility, notional, spot, option_type)
