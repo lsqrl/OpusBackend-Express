@@ -20,6 +20,6 @@ def option_vega(strike, expiry, rate, volatility, notional, spot, option_type):
     d1 = (math.log(spot / strike) + (rate + 0.5 * volatility ** 2) * expiry) / (volatility * math.sqrt(expiry))
     
     # Vega calculation
-    vega = spot * norm.pdf(d1) * math.sqrt(expiry) * notional
+    vega = spot * norm.pdf(d1) * math.sqrt(expiry) * notional / 100
     
     return vega

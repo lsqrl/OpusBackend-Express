@@ -59,14 +59,24 @@ def display_adj_price():
 
         # Calculate the time to expiry in years
         time_to_expiry = (expiry_datetime - current_time).days / 365.0
-                
-        market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
 
-        if market_response.status_code != 200:
-            return jsonify({'error': 'Failed to fetch market data from external service'}), 500
-        volatility = float(market_response.json().get('volatility'))
-        rate = float(market_response.json().get('rate'))
-        spot = float(market_response.json().get('spot')[currency])
+        
+        # Check if spot, volatility, and rate are provided, otherwise fetch from the external service
+        spot = data.get('spot')
+        volatility = data.get('volatility')
+        rate = data.get('rate')
+
+        if spot is None or volatility is None or rate is None:    
+            market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
+
+            if market_response.status_code != 200:
+                return jsonify({'error': 'Failed to fetch market data from external service'}), 500
+            if volatility is None:
+                volatility = float(market_response.json().get('volatility'))
+            if rate is None:
+                rate = float(market_response.json().get('rate'))
+            if spot is None:
+                spot = float(market_response.json().get('spot')[currency])
         p1 = option_price(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
         d1 = option_delta(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
