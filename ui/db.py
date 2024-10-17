@@ -8,9 +8,9 @@ url = URL.create(
     drivername="postgresql",      
     username=os.getenv("POSTGRES_USERNAME"),
     password=os.getenv("POSTGRES_PASSWORD"),
-    host="localhost",
+    host=os.getenv("POSTGRES_NETWORK"),
     port=5432,
-    database="postgres"
+    database=os.getenv("POSTGRES_DATABASE")
 )
 engine = create_engine(url)
 connection = engine.connect()

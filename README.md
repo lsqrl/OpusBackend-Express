@@ -14,10 +14,6 @@ Also make sure to set up the BASE_URL namely:
 1. BASE_URL = "0.0.0.0" for remote deployment
 2. BASE_URL = "127.0.0.1" for on-prem deployment
 
-These variables have to be set up in:
-1. ui/db.py
-2. database_prod/initialize_database.py
-
 ## Requirements
 Set up a virtual environment:
 ```
