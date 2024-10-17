@@ -76,12 +76,13 @@ def price_option():
 
         if spot is None or volatility is None or rate is None:
             response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
-            spot = float(response.json().get('spot')[currency])
-            volatility = float(response.json().get('volatility'))
-            rate = float(response.json().get('rate'))
+            if spot is None:
+                spot = float(response.json().get('spot')[currency])
+            if volatility is None:
+                volatility = float(response.json().get('volatility'))
+            if rate is None:
+                rate = float(response.json().get('rate'))
         
-        # Call the option_price function
-        option_type = "CALL" # this is the default
         price = option_price(strike, expiry, rate, volatility, notional, spot, option_type)
         return jsonify({'price': price}), 200
 

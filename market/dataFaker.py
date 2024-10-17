@@ -29,6 +29,8 @@ def get_numbers():
         std_vol = 0.01
         a, b = (0 - mean_vol) / std_vol, np.inf  # Truncate at 0 to ensure positivity
         volatility = truncnorm.rvs(a, b, loc=mean_vol, scale=std_vol)
+        # Ensure volatility is strictly between 0.01 and 0.9
+        volatility = max(min(volatility, 0.9), 0.01)
 
         # Generate rate from a normal distribution
         mean_rate = 0.04
