@@ -25,8 +25,8 @@ def get_numbers():
         'ETH': spot*2246}
     if not are_set:
         # Generate volatility from a truncated normal distribution (always positive)
-        mean_vol = 0.01
-        std_vol = 0.01
+        mean_vol = 0.1
+        std_vol = 0.1
         a, b = (0 - mean_vol) / std_vol, np.inf  # Truncate at 0 to ensure positivity
         volatility = truncnorm.rvs(a, b, loc=mean_vol, scale=std_vol)
         # Ensure volatility is strictly between 0.01 and 0.9
