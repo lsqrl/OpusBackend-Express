@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, request, jsonify
 from pricer.analytics.optionDelta import option_delta  # Assuming optionDelta is in pricer.analytics
@@ -108,4 +109,4 @@ def list_api_methods():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.run(port=5003) # host="0.0.0.0",
+    app.run(host=os.getenv("BASE_URL"), port=5003)

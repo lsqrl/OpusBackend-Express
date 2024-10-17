@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, jsonify
 from pricer.api.utils import calculate_option_greeks, calculate_option_price  # Importing the function from fetchOptionDelta.py
@@ -62,7 +63,7 @@ def list_api_methods():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.run(port=5001,debug=True) # host="0.0.0.0",
+    app.run(host=os.getenv("BASE_URL"), port=5001, debug=True)
 
 
 # TODO: 2/3 add a POST request that calls option_price(strike, expiry, rate, volatility, notional, spot, option_type)

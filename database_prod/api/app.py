@@ -1,5 +1,5 @@
 from . import create_app
-
+import os
 from flask import jsonify, request, current_app as app, abort
 from database_prod.data_types import *
 import datetime
@@ -25,4 +25,4 @@ def list_api_methods():
         return []
 
 if __name__ == '__main__':
-    app.run(port=5000,debug=True) # host="0.0.0.0",
+    app.run(host=os.getenv("BASE_URL"), port=5000,debug=True)

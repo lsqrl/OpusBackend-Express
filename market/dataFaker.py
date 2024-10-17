@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, request
 import numpy as np
 from scipy.stats import truncnorm
@@ -91,4 +92,4 @@ def list_api_methods():
     return jsonify(output)
 
 if __name__ == '__main__':
-    app.run(port=5004) # host="0.0.0.0",
+    app.run(host=os.getenv("BASE_URL"), port=5004) # host="0.0.0.0",

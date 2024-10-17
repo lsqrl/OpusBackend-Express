@@ -1,11 +1,12 @@
+import os
 import requests
 import json
 
-base_url_database_prod = 'http://127.0.0.1:5000/'
-base_url_pricer = 'http://127.0.0.1:5001/'
-base_url_arm = 'http://127.0.0.1:5002/'
-base_url_imm = 'http://127.0.0.1:5003/'
-base_url_datafaker = 'http://127.0.0.1:5004/'
+base_url_database_prod = f"http://{os.getenv("BASE_URL")}:5000/"
+base_url_pricer = f"http://{os.getenv("BASE_URL")}:5001/"
+base_url_arm = f"http://{os.getenv("BASE_URL")}:5002/"
+base_url_imm = f"http://{os.getenv("BASE_URL")}:5003/"
+base_url_datafaker = f"http://{os.getenv("BASE_URL")}:5004/"
 
 headers = {
     'Content-Type': 'application/json'

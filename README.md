@@ -2,7 +2,9 @@
 Opus Express backend, lightweight to run on a remote server
 
 # Setup
-Before running the server, make sure that you have exported:
+Before running the server, make sure that you have created an .env file
+
+Add the database parameters:
 1. POSTGRES_USERNAME
 2. POSTGRES_PASSWORD
 3. POSTGRES_NETWORK

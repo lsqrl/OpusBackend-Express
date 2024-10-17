@@ -1,7 +1,9 @@
-import subprocess
 import os
+import subprocess
+from dotenv import load_dotenv
 
 def start_servers():
+    load_dotenv(".env")
     servers = [
         "python -m database_prod.api.app",
         "python -m pricer.api.app",
