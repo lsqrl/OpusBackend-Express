@@ -16,12 +16,14 @@ are_set = False
 CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 
 # TODO: 3/3 Have getNumbers for Euro, BTC (around 58.444k) and ETH (around 2.282k)
-@app.route('/getNumbers', methods=['GET'])
+@app.route('/getNumbers')
 def get_numbers():
     global spot, are_set
-    current_spot = {{'EURO': spot},
-                    {'BTC': spot*58412},
-                    {'ETH': spot*2246}} 
+    print("I'm here!")
+    current_spot = {
+        'EURO': spot,
+        'BTC': spot*58412,
+        'ETH': spot*2246}
     if not are_set:
         # Generate volatility from a truncated normal distribution (always positive)
         mean_vol = 0.01
@@ -47,9 +49,11 @@ def get_numbers():
                 spot *= (1 + epsilon)
             else:
                 spot *= (1 - epsilon)
-            current_spot = {{'EURO': spot},
-                            {'BTC': spot*58412},
-                            {'ETH': spot*2246}} 
+        current_spot = {
+            'EURO': spot,
+            'BTC': spot*58412,
+            'ETH': spot*2246
+            }
     # Return the results as JSON
     return jsonify({
         'spot': current_spot,
@@ -88,7 +92,7 @@ def set_values():
 
 
 @app.route('/reset', methods=['POST'])
-def set_values():
+def reset():
     global are_set
     are_set =  False
     return None
