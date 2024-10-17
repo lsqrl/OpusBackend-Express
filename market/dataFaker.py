@@ -3,12 +3,15 @@ from flask import Flask, jsonify, request
 import numpy as np
 from scipy.stats import truncnorm
 from threading import Lock
+from flask_cors import CORS
 
 app = Flask(__name__)
 
 # Initialize the spot value and a lock for thread safety
 spot = 1.1
 spot_lock = Lock()
+
+CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 
 # TODO: 3/3 Have getNumbers for Euro, BTC (around 58.444k) and ETH (around 2.282k)
 @app.route('/getNumbers')

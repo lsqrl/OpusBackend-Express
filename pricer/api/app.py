@@ -3,8 +3,11 @@ import requests
 from flask import Flask, jsonify, request
 from pricer.api.utils import calculate_option_greeks, calculate_option_price  # Importing the function from fetchOptionDelta.py
 from pricer.analytics.optionPrice import option_price
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 
 @app.route('/calculateGreeks', methods=['GET'])
 def calculate_greeks():

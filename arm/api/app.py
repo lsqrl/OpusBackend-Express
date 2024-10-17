@@ -5,6 +5,7 @@ from pricer.analytics.optionDelta import option_delta
 from pricer.analytics.optionVega import option_vega
 from datetime import datetime, timezone
 
+from flask_cors import CORS
 app = Flask(__name__)
 
 # Hardcoded threshold value
@@ -12,6 +13,8 @@ DELTA_THRESHOLD = 1000000
 VEGA_THRESHOLD = 1000000
 GAMMA_THRESHOLD = 10000000
 THETA_THRESHOLD = 1000000
+
+CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 
 @app.route('/bookFXOption', methods=['POST'])
 def generate_post_request():
