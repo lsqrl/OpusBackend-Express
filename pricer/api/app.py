@@ -49,11 +49,8 @@ def calculate_price():
         return jsonify({'error': str(e)}), 400
 
 
-# TODO: 2/3 add a POST request that calls 
-# option_price(strike, expiry, rate, volatility, notional, spot, option_type)
-# which is in pricer\analytics\optionPrice.py
+# TODO: 2/3 
 # if spot, volatility, rate are not in the request body, then they are taken from localhost:5004/market/getNumbers
-# otherwise they are from request body.
 # also, add the currency in request body so that you can filter through the response of getNumbers
 @app.route('/priceOption', methods=['POST'])
 def price_option():
