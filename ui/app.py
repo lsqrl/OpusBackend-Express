@@ -55,11 +55,11 @@ with st.sidebar:
         [el[0] for el in get_portfolio_list().all()]
     )
     st.title('Using 🌍OpusDigital® services:')
-    st.text('@localhost:5000 - Data Model')
-    st.text('@localhost:5001 - Pricer')
-    st.text('@localhost:5002 - Automated Risk Manager ')
-    st.text('@localhost:5003 - Intelligent Market Maker')
-    st.text('@localhost:5004 - Recommender FinData')
+    st.text('@BASE_URL:5000 - Data Model')
+    st.text('@BASE_URL:5001 - Pricer')
+    st.text('@BASE_URL:5002 - Automated Risk Manager ')
+    st.text('@BASE_URL:5003 - Intelligent Market Maker')
+    st.text('@BASE_URL:5004 - Recommender FinData')
 
 st.title("Portfolio management")
 ########################################################################################################################################################################################

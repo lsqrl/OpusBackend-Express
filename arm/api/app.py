@@ -29,7 +29,7 @@ def generate_post_request():
         premium_settlement_date = data.get('premium_settlement_date')
         expiry_time = data.get('expiry_time')
 
-        greek_response = requests.get('http://localhost:5001/calculateGreeks')
+        greek_response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
         if greek_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch greeks from external service'}), 500
         d1 = float(greek_response.json().get('delta'))
@@ -46,7 +46,7 @@ def generate_post_request():
         # Calculate the time to expiry in years
         time_to_expiry = (expiry_datetime - current_time).days / 365.0
 
-        market_response = requests.get('http://localhost:5004/getNumbers')
+        market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
         if market_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
         volatility = float(market_response.json().get('volatility'))
@@ -93,7 +93,7 @@ def generate_post_request():
 
         # Step 6: Send the POST request to bookTrade endpoint
         post_response = requests.post(
-            'http://localhost:5000/bookTrade/FXOption/FXOption',
+            f"http://{os.getenv("BASE_URL")}:5000/bookTrade/FXOption/FXOption",
             json=post_data,
             headers={'Content-Type': 'application/json'},
             timeout=20  # Wait up to 20 seconds for a response

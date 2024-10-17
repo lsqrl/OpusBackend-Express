@@ -51,7 +51,7 @@ def display_adj_price():
         # Calculate the time to expiry in years
         time_to_expiry = (expiry_datetime - current_time).days / 365.0
                 
-        market_response = requests.get('http://localhost:5004/getNumbers')
+        market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
 
         if market_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
@@ -65,7 +65,7 @@ def display_adj_price():
 
         v1 = option_vega(strike, time_to_expiry, rate, volatility, notional, spot, option_type)
 
-        response = requests.get('http://localhost:5001/calculateGreeks')
+        response = requests.get(f"http://{os.getenv("BASE_URL")}:5001/calculateGreeks")
         if response.status_code == 200:
             D = response.json().get('delta')
             V = response.json().get('vega')
