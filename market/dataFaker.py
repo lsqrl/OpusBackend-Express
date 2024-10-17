@@ -19,7 +19,6 @@ CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
 @app.route('/getNumbers')
 def get_numbers():
     global spot, are_set
-    print("I'm here!")
     current_spot = {
         'EURO': spot,
         'BTC': spot*58412,

@@ -16,10 +16,8 @@ def calculate_greeks():
         market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
         if market_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
-        print(market_response)
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
-        print(spot)
         spot = float(market_response.json().get('spot')[currency])
         
         delta, gamma, theta, vega = calculate_option_greeks(volatility, rate, spot)
@@ -38,13 +36,14 @@ def calculate_greeks():
 
 @app.route('/calculatePrice', methods=['GET'])
 def calculate_price():
+    currency = request.args.get('currency')
     try:
         market_response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
         if market_response.status_code != 200:
             return jsonify({'error': 'Failed to fetch market data from external service'}), 500
         volatility = float(market_response.json().get('volatility'))
         rate = float(market_response.json().get('rate'))
-        spot = float(market_response.json().get('spot'))
+        spot = float(market_response.json().get('spot')[currency])
         
         price = calculate_option_price(volatility, rate, spot)
         
@@ -77,20 +76,9 @@ def price_option():
 
         if spot is None or volatility is None or rate is None:
             response = requests.get(f"http://{os.getenv("BASE_URL")}:5004/getNumbers")
-            if response.status_code != 200:
-                return jsonify({'error': 'Failed to fetch market data'}), 500
-            
-            market_data = response.json()
-            
-            # Filter market data by currency
-            currency_data = next((item for item in market_data if item['currency'] == currency), None)
-            if not currency_data:
-                return jsonify({'error': f'No market data available for currency: {currency}'}), 404
-            
-            # Assign values if not provided in request
-            spot = spot or currency_data['spot']
-            volatility = volatility or currency_data['volatility']
-            rate = rate or currency_data['rate']
+            spot = float(response.json().get('spot')[currency])
+            volatility = float(response.json().get('volatility'))
+            rate = float(response.json().get('rate'))
         
         # Call the option_price function
         option_type = "CALL" # this is the default
