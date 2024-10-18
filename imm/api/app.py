@@ -7,6 +7,7 @@ from pricer.analytics.optionPrice import option_price
 from pricer.analytics.optionDelta import option_delta
 from pricer.analytics.optionVega import option_vega
 from flask_cors import CORS
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -29,7 +30,8 @@ app = Flask(__name__)
 # - The idea is to decrease the Delta, always. So if a new option increases our Delta, then its price should be *higher* than BS. 
 # If it decreases it, price should be *lower* than BS.
 
-CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
+load_dotenv()
+CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_ORIGIN")}})
 
 
 @app.route('/displayAdjustedPrice', methods=['POST'])

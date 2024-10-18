@@ -4,7 +4,9 @@ import numpy as np
 from scipy.stats import truncnorm
 from threading import Lock
 from flask_cors import CORS
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 # Initialize the spot value and a lock for thread safety
@@ -13,7 +15,7 @@ spot_lock = Lock()
 
 are_set = False
 
-CORS(app, resources={r"/*": {"origins": "https://opusdigital.vercel.app"}})
+CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_ORIGIN")}})
 
 # TODO: 3/3 Have getNumbers for Euro, BTC (around 58.444k) and ETH (around 2.282k)
 @app.route('/getNumbers')
