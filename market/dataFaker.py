@@ -11,6 +11,9 @@ app = Flask(__name__)
 
 # Initialize the spot value and a lock for thread safety
 spot = 1.1
+rate = 0.04
+volatility = 0.01
+
 spot_lock = Lock()
 
 are_set = False
@@ -20,31 +23,14 @@ CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_ORIGIN")}})
 # TODO: 3/3 Have getNumbers for Euro, BTC (around 58.444k) and ETH (around 2.282k)
 @app.route('/getNumbers')
 def get_numbers():
-    global spot, are_set
+    global spot, are_set, rate, volatility
     current_spot = {
         'EURO': spot,
         'BTC': spot*58412,
         'ETH': spot*2246}
     if not are_set:
-        # Generate volatility from a truncated normal distribution (always positive)
-        mean_vol = 0.1
-        std_vol = 0.1
-        a, b = (0 - mean_vol) / std_vol, np.inf  # Truncate at 0 to ensure positivity
-        volatility = truncnorm.rvs(a, b, loc=mean_vol, scale=std_vol)
-        # Ensure volatility is strictly between 0.01 and 0.9
-        volatility = max(min(volatility, 0.9), 0.01)
-
         # Generate rate from a normal distribution
-        mean_rate = 0.04
-        std_rate = 0.03
-        rate = np.random.normal(mean_rate, std_rate)
-
-        # Randomly decide to multiply rate by (1 + epsilon) or (1 - epsilon)
-        epsilon = volatility
-        if np.random.rand() > 0.5:
-            rate *= (1 + epsilon)
-        else:
-            rate *= (1 - epsilon)
+        epsilon = np.random.normal(0, volatility)
 
         # Update the spot value with 50/50 probability of increasing or decreasing
         with spot_lock:
@@ -94,11 +80,13 @@ def set_values():
     })
 
 
-@app.route('/reset', methods=['POST'])
+@app.route('/reset', methods=['GET'])
 def reset():
     global are_set
     are_set =  False
-    return None
+    return jsonify({
+        'message': 'Reset succeeded'
+    })
 
 
 # Route to list all implemented API methods
