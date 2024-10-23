@@ -50,6 +50,7 @@ def display_adj_price():
         currency = data.get('currency')
         vega = data.get('vega')
         delta = data.get('delta')
+        historical_vol = data.get('historical_vol')
 
         if currency is None:
             currency = "EURO"
@@ -101,8 +102,11 @@ def display_adj_price():
         default_ask = p1 * 1.05  # p1 + 5%
 
         # Step 5: Calculate final bid and ask
-        final_bid = default_bid * (1 - d1 / D) * (1 - v1 / V)
-        final_ask = default_ask * (1 + d1 / D) * (1 - v1 / V)
+
+        adjustment = p1 * round(historical_vol // 0.1 * 0.1, 1)
+
+        final_bid = default_bid - adjustment
+        final_ask = default_ask + adjustment
 
         # Return the final bid and ask as JSON
         return jsonify({
