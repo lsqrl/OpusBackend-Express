@@ -52,10 +52,15 @@ def implied_volatility(price, strike, expiry, rate, notional, spot, option_type,
     
     # Define a function that calculates the difference between observed price and model price
     def price_diff(volatility):
-        return option_price(strike, expiry, rate, volatility, notional, spot, option_type) - price
+        optPrice = option_price(strike, expiry, rate, volatility, notional, spot, option_type)
+        print("spot", spot)
+        print("volatility", volatility)
+        print("optPrice", optPrice)
+        print("price", price)
+        return optPrice - price
 
     # Use the Brent method to find the root of the price difference function
     # The volatility must be between 0 and 500% (5.0 in decimal form)
-    implied_vol = brentq(price_diff, 1e-6, 5.0, xtol=tol)
+    implied_vol = brentq(price_diff, 1e-10, 5.0, xtol=tol)
 
     return implied_vol
