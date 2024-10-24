@@ -103,7 +103,7 @@ def display_adj_price():
 
         # Step 5: Calculate final bid and ask
 
-        adjustment = p1 * round(historical_vol // 0.1 * 0.1, 1)
+        adjustment = p1 * round(historical_vol // 0.1 * 0.1, 1) * (1 + V / 100000)
 
         final_bid = default_bid - adjustment
         final_ask = default_ask + adjustment
