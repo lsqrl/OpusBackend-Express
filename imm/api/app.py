@@ -99,7 +99,7 @@ def display_adj_price():
         
         # Step 5: Calculate final bid and ask
 
-        vol_adjustment = min(round(historical_vol // 0.1 * 0.1, 1) , 1)
+        vol_adjustment = min(round(historical_vol // 0.05 * 0.05, 2), 1)
         vega_adjustment = vol_adjustment - V / 100000
 
         # convex adjustment but always higher than spot - strike
