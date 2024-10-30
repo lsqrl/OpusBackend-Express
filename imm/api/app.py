@@ -98,8 +98,17 @@ def display_adj_price():
             V = vega
         
         # Step 5: Calculate final bid and ask
+        def custom_round(historical_vol: float) -> float:
+            # Round to the nearest 0.05 first
+            nearest = round(historical_vol / 0.05) * 0.05
 
-        vol_adjustment = min(round(historical_vol // 0.05 * 0.05, 2), 1)
+            # Apply custom rounding centered at 0.25
+            if nearest < 0.25:
+                return min(nearest + 0.05, 1) if nearest < historical_vol else nearest
+            else:
+                return max(nearest - 0.05, 0) if nearest > historical_vol else nearest
+            
+        vol_adjustment = custom_round(historical_vol)
         vega_adjustment = vol_adjustment - V / 100000
 
         # convex adjustment but always higher than spot - strike
