@@ -26,8 +26,8 @@ def get_numbers():
     global spot, are_set, rate, volatility
     current_spot = {
         'EURO': spot,
-        'BTC': spot*58412,
-        'ETH': spot*2246}
+        'BTC': spot*65740,
+        'ETH': spot*2478}
     if not are_set:
         # Generate rate from a normal distribution
         epsilon = np.random.normal(0, volatility)
@@ -40,8 +40,8 @@ def get_numbers():
                 spot *= (1 - epsilon)
         current_spot = {
             'EURO': spot,
-            'BTC': spot*58412,
-            'ETH': spot*2246
+            'BTC': spot*65740,
+            'ETH': spot*2478
             }
     # Return the results as JSON
     return jsonify({

@@ -99,23 +99,24 @@ def display_adj_price():
         
         # Step 5: Calculate final bid and ask
 
-        adjustment = min(round(historical_vol // 0.1 * 0.1, 1) * (1 + V / 100000), 1)
+        vol_adjustment = min(round(historical_vol // 0.1 * 0.1, 1) , 1)
+        vega_adjustment = vol_adjustment - V / 100000
 
         # convex adjustment but always higher than spot - strike
         if option_type == "CALL":
             if spot > strike:
-                final_bid = p1 - adjustment * (p1 - (spot - strike))
-                final_ask = p1 + adjustment * (p1 - (spot - strike))
+                final_bid = p1 - vol_adjustment * (p1 - (spot - strike))
+                final_ask = p1 + vega_adjustment * (p1 - (spot - strike))
             else:
-                final_bid = p1 * (1 - adjustment)
-                final_ask = p1 * (1 + adjustment)
+                final_bid = p1 * (1 - vol_adjustment)
+                final_ask = p1 * (1 + vega_adjustment)
         else:
             if spot < strike:
-                final_bid = p1 - adjustment * (p1 - (strike - spot))
-                final_ask = p1 + adjustment * (p1 - (strike - spot))
+                final_bid = p1 - vol_adjustment * (p1 - (strike - spot))
+                final_ask = p1 + vega_adjustment * (p1 - (strike - spot))
             else:
-                final_bid = p1 * (1 - adjustment)
-                final_ask = p1 * (1 + adjustment)
+                final_bid = p1 * (1 - vol_adjustment)
+                final_ask = p1 * (1 + vega_adjustment)
 
 
         # Return the final bid and ask as JSON
